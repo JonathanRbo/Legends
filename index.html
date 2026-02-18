@@ -1,0 +1,2530 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokémon Legends RPG — Sistema de Mesa</title>
+    <link rel="stylesheet" href="https://cdn.squeleton.dev/squeleton.v4.min.css">
+    <script src="https://cdn.squeleton.dev/squeleton-main.v4.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --pk-red: #DC0A2D;
+            --pk-red-dark: #A00020;
+            --pk-blue: #3B4CCA;
+            --pk-yellow: #FFDE00;
+            --pk-gold: #B3A125;
+            --pk-dark: #0a0a0f;
+            --pk-darker: #06060a;
+            --pk-card: #12121a;
+            --pk-card-hover: #1a1a28;
+            --pk-border: #2a2a3a;
+            --pk-text: #e0e0e8;
+            --pk-text-dim: #8888aa;
+            --pk-green: #4CAF50;
+            --pk-orange: #FF9800;
+        }
+
+        * { margin: 0; padding: 0; }
+
+        body {
+            background: var(--pk-darker);
+            color: var(--pk-text);
+            font-family: 'Inter', sans-serif;
+        }
+
+        h1, h2, h3, h4 { font-family: 'Inter', sans-serif; }
+        .pixel-font { font-family: 'Press Start 2P', monospace; }
+
+        /* Navbar */
+        .navbar {
+            background: rgba(10,10,15,0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--pk-border);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            transition: all 0.3s;
+        }
+        .navbar a {
+            color: var(--pk-text-dim);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            transition: color 0.3s;
+        }
+        .navbar a:hover { color: var(--pk-yellow); }
+
+        .logo-text {
+            background: linear-gradient(135deg, var(--pk-yellow), var(--pk-gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Hero */
+        .hero-bg {
+            background: radial-gradient(ellipse at 50% 0%, rgba(220,10,45,0.15) 0%, transparent 60%),
+                        radial-gradient(ellipse at 20% 80%, rgba(59,76,202,0.1) 0%, transparent 50%),
+                        var(--pk-darker);
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-bg::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            border: 2px solid rgba(220,10,45,0.08);
+            pointer-events: none;
+        }
+        .hero-bg::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: rgba(220,10,45,0.06);
+            pointer-events: none;
+        }
+
+        .pokeball-icon {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 4px solid var(--pk-red);
+            position: relative;
+            margin: 0 auto 30px;
+            background: linear-gradient(180deg, var(--pk-red) 0%, var(--pk-red) 48%, #333 48%, #333 52%, #fff 52%, #fff 100%);
+            opacity: 0.3;
+            animation: float 3s ease-in-out infinite;
+        }
+        .pokeball-icon::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #fff;
+            border: 4px solid #333;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Botões */
+        .btn-pk {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .btn-red {
+            background: linear-gradient(135deg, var(--pk-red), var(--pk-red-dark));
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(220,10,45,0.3);
+        }
+        .btn-red:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(220,10,45,0.5);
+        }
+        .btn-blue {
+            background: linear-gradient(135deg, var(--pk-blue), #2a3aaa);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(59,76,202,0.3);
+        }
+        .btn-blue:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(59,76,202,0.5);
+        }
+        .btn-outline {
+            background: transparent;
+            color: var(--pk-text);
+            border: 1px solid var(--pk-border);
+        }
+        .btn-outline:hover {
+            border-color: var(--pk-yellow);
+            color: var(--pk-yellow);
+        }
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 12px;
+        }
+        .btn-gold {
+            background: linear-gradient(135deg, var(--pk-yellow), var(--pk-gold));
+            color: #111;
+            box-shadow: 0 4px 15px rgba(255,222,0,0.2);
+        }
+        .btn-gold:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(255,222,0,0.4);
+        }
+        .btn-green {
+            background: linear-gradient(135deg, var(--pk-green), #388E3C);
+            color: #fff;
+        }
+
+        /* Cards */
+        .pk-card {
+            background: var(--pk-card);
+            border: 1px solid var(--pk-border);
+            border-radius: 12px;
+            transition: all 0.3s;
+            overflow: hidden;
+        }
+        .pk-card:hover {
+            background: var(--pk-card-hover);
+            border-color: rgba(220,10,45,0.3);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+        }
+
+        /* Section Headers */
+        .section-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+        .badge-red {
+            background: rgba(220,10,45,0.15);
+            color: var(--pk-red);
+            border: 1px solid rgba(220,10,45,0.3);
+        }
+        .badge-blue {
+            background: rgba(59,76,202,0.15);
+            color: #6B7FFF;
+            border: 1px solid rgba(59,76,202,0.3);
+        }
+        .badge-yellow {
+            background: rgba(255,222,0,0.1);
+            color: var(--pk-yellow);
+            border: 1px solid rgba(255,222,0,0.2);
+        }
+        .badge-green {
+            background: rgba(76,175,80,0.15);
+            color: var(--pk-green);
+            border: 1px solid rgba(76,175,80,0.3);
+        }
+
+        /* Type Badges */
+        .type-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #fff;
+        }
+        .type-normal { background: #A8A878; }
+        .type-fire { background: #F08030; }
+        .type-water { background: #6890F0; }
+        .type-grass { background: #78C850; }
+        .type-electric { background: #F8D030; color: #333; }
+        .type-ice { background: #98D8D8; color: #333; }
+        .type-fighting { background: #C03028; }
+        .type-poison { background: #A040A0; }
+        .type-ground { background: #E0C068; color: #333; }
+        .type-flying { background: #A890F0; }
+        .type-psychic { background: #F85888; }
+        .type-bug { background: #A8B820; color: #333; }
+        .type-rock { background: #B8A038; }
+        .type-ghost { background: #705898; }
+        .type-dragon { background: #7038F8; }
+        .type-dark { background: #705848; }
+        .type-steel { background: #B8B8D0; color: #333; }
+        .type-fairy { background: #EE99AC; color: #333; }
+
+        /* Stat Bars */
+        .stat-bar-bg {
+            background: rgba(255,255,255,0.06);
+            border-radius: 4px;
+            height: 10px;
+            overflow: hidden;
+        }
+        .stat-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 1s ease;
+        }
+        .stat-hp { background: linear-gradient(90deg, #4CAF50, #66BB6A); }
+        .stat-atk { background: linear-gradient(90deg, #F44336, #EF5350); }
+        .stat-def { background: linear-gradient(90deg, #FF9800, #FFA726); }
+        .stat-spatk { background: linear-gradient(90deg, #2196F3, #42A5F5); }
+        .stat-spdef { background: linear-gradient(90deg, #9C27B0, #AB47BC); }
+        .stat-spd { background: linear-gradient(90deg, #E91E63, #EC407A); }
+
+        /* Dice */
+        .dice-container {
+            display: inline-flex;
+            gap: 8px;
+        }
+        .dice {
+            width: 50px;
+            height: 50px;
+            background: var(--pk-card);
+            border: 2px solid var(--pk-border);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 800;
+            transition: all 0.3s;
+            color: var(--pk-yellow);
+        }
+        .dice.rolling {
+            animation: diceRoll 0.1s infinite;
+            border-color: var(--pk-yellow);
+        }
+        @keyframes diceRoll {
+            0% { transform: rotate(0deg) scale(1.1); }
+            25% { transform: rotate(5deg) scale(0.95); }
+            50% { transform: rotate(-5deg) scale(1.1); }
+            75% { transform: rotate(3deg) scale(0.95); }
+            100% { transform: rotate(0deg) scale(1.1); }
+        }
+        .dice.critical {
+            border-color: var(--pk-yellow);
+            box-shadow: 0 0 20px rgba(255,222,0,0.5);
+            color: var(--pk-yellow);
+        }
+        .dice.fail {
+            border-color: var(--pk-red);
+            box-shadow: 0 0 20px rgba(220,10,45,0.5);
+            color: var(--pk-red);
+        }
+
+        /* Form elements */
+        .pk-select, .pk-input {
+            background: var(--pk-card);
+            color: var(--pk-text);
+            border: 1px solid var(--pk-border);
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            width: 100%;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        .pk-select:focus, .pk-input:focus { border-color: var(--pk-yellow); }
+
+        /* Tables */
+        .pk-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .pk-table th, .pk-table td {
+            padding: 10px 14px;
+            text-align: left;
+            border-bottom: 1px solid var(--pk-border);
+            font-size: 13px;
+        }
+        .pk-table th {
+            background: rgba(255,255,255,0.03);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 11px;
+            color: var(--pk-text-dim);
+        }
+        .pk-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+        /* Type Chart */
+        .type-cell {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+            border-radius: 4px;
+            cursor: default;
+        }
+        .type-cell.super { background: #4CAF50; color: #fff; }
+        .type-cell.not-very { background: #F44336; color: #fff; }
+        .type-cell.immune { background: #333; color: #666; }
+        .type-cell.neutral { background: transparent; }
+
+        /* Battle Arena */
+        .arena-bg {
+            background: radial-gradient(ellipse at 50% 100%, rgba(59,76,202,0.08) 0%, transparent 60%),
+                        var(--pk-card);
+            border: 1px solid var(--pk-border);
+            border-radius: 16px;
+        }
+        .hp-bar-bg {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            height: 16px;
+            overflow: hidden;
+            position: relative;
+        }
+        .hp-bar-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.8s ease;
+            background: linear-gradient(90deg, #4CAF50, #66BB6A);
+        }
+        .hp-bar-fill.low { background: linear-gradient(90deg, #FF9800, #FFA726); }
+        .hp-bar-fill.critical { background: linear-gradient(90deg, #F44336, #EF5350); }
+
+        /* Battle Log */
+        .battle-log {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--pk-border);
+            border-radius: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 13px;
+        }
+        .battle-log::-webkit-scrollbar { width: 6px; }
+        .battle-log::-webkit-scrollbar-track { background: transparent; }
+        .battle-log::-webkit-scrollbar-thumb { background: var(--pk-border); border-radius: 3px; }
+        .log-entry { padding: 6px 12px; border-bottom: 1px solid rgba(255,255,255,0.03); }
+        .log-critical { color: var(--pk-yellow); font-weight: 600; }
+        .log-damage { color: var(--pk-red); }
+        .log-heal { color: var(--pk-green); }
+        .log-info { color: var(--pk-text-dim); }
+
+        /* Pokédex Card */
+        .pokedex-card {
+            background: var(--pk-card);
+            border: 1px solid var(--pk-border);
+            border-radius: 12px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .pokedex-card:hover {
+            border-color: rgba(255,222,0,0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+        .pokedex-number {
+            font-size: 11px;
+            color: var(--pk-text-dim);
+            font-weight: 600;
+        }
+        .pokemon-sprite {
+            width: 96px;
+            height: 96px;
+            image-rendering: pixelated;
+            filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3));
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--pk-darker); }
+        ::-webkit-scrollbar-thumb { background: var(--pk-border); border-radius: 4px; }
+
+        /* Smooth scroll */
+        html { scroll-behavior: smooth; }
+
+        /* Nav links active */
+        .nav-link.active { color: var(--pk-yellow) !important; }
+
+        /* Footer */
+        .footer-bg {
+            background: var(--pk-dark);
+            border-top: 1px solid var(--pk-border);
+        }
+
+        /* Trainer Card */
+        .trainer-card-display {
+            background: linear-gradient(145deg, #1a1a2e, #16213e);
+            border: 2px solid var(--pk-gold);
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+        }
+        .trainer-card-display::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--pk-red), var(--pk-yellow), var(--pk-blue));
+        }
+
+        /* Tab system */
+        .tab-btn {
+            padding: 10px 20px;
+            background: transparent;
+            border: 1px solid var(--pk-border);
+            border-radius: 8px;
+            color: var(--pk-text-dim);
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .tab-btn:hover { border-color: var(--pk-text-dim); color: var(--pk-text); }
+        .tab-btn.active {
+            background: var(--pk-red);
+            border-color: var(--pk-red);
+            color: #fff;
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Rank badges */
+        .rank-common { color: #A8A8A8; }
+        .rank-uncommon { color: #4CAF50; }
+        .rank-rare { color: #2196F3; }
+        .rank-legendary { color: var(--pk-yellow); }
+
+        /* Type chart header cells */
+        .type-header {
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 4px 2px;
+            letter-spacing: 0.5px;
+            text-align: center;
+        }
+        .type-row-label {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 4px 6px;
+            white-space: nowrap;
+        }
+
+        /* Encounter area */
+        .encounter-area {
+            position: relative;
+            background: radial-gradient(ellipse at 50% 80%, rgba(120,200,80,0.08) 0%, transparent 60%),
+                        var(--pk-card);
+            border: 1px solid var(--pk-border);
+            border-radius: 16px;
+            min-height: 300px;
+        }
+
+        /* Pokémon detail sprite */
+        .detail-sprite {
+            width: 160px;
+            height: 160px;
+            image-rendering: pixelated;
+            filter: drop-shadow(0 4px 20px rgba(0,0,0,0.5));
+        }
+
+        /* Trainer stat */
+        .trainer-stat-box {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--pk-border);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .section-divider {
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--pk-red), var(--pk-yellow));
+            border-radius: 2px;
+        }
+
+        .glow-red { text-shadow: 0 0 20px rgba(220,10,45,0.5); }
+        .glow-yellow { text-shadow: 0 0 20px rgba(255,222,0,0.5); }
+
+        /* Type chart scrollable on mobile */
+        .type-chart-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .type-chart-scroll table { min-width: 700px; }
+
+        /* Rules accordion */
+        .rule-toggle {
+            background: var(--pk-card);
+            border: 1px solid var(--pk-border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .rule-toggle:hover { border-color: var(--pk-red); }
+        .rule-toggle.open { border-color: var(--pk-red); background: var(--pk-card-hover); }
+        .rule-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+        }
+        .rule-content.open { max-height: 1000px; }
+
+        /* Misc */
+        .vs-text {
+            font-size: 40px;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--pk-red), var(--pk-yellow));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+    <div class="container">
+        <div class="d-flex f-items-center f-justify-between p-12-tb">
+            <a href="#hero" class="d-flex f-items-center f-gap-10">
+                <span class="pixel-font fs-3 logo-text">PKM</span>
+                <span class="fw-700 fs-5">Legends RPG</span>
+            </a>
+            <div class="d-flex f-gap-20 xs-d-none">
+                <a href="#sistema" class="nav-link">Sistema</a>
+                <a href="#treinador" class="nav-link">Treinador</a>
+                <a href="#pokedex" class="nav-link">Pokédex</a>
+                <a href="pokedex.html" class="nav-link">Pokédex Completa</a>
+                <a href="#meu-time" class="nav-link">Meu Time</a>
+                <a href="#batalha" class="nav-link">Batalha</a>
+                <a href="#tipos" class="nav-link">Tipos</a>
+            </div>
+            <button class="btn-pk btn-red btn-sm xs-d-none" onclick="document.getElementById('treinador').scrollIntoView({behavior:'smooth'})">
+                <span class="iccon-play-1"></span> Jogar
+            </button>
+        </div>
+    </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero" class="hero-bg h-100vh f-justify-center f-items-center text-center p-20-lr" style="padding-top:80px;">
+    <div class="w-700px xs-w-100">
+        <div class="pokeball-icon wow fadeIn" data-wow-duration="1.5s"></div>
+        <div class="section-badge badge-red m-15-b animated fadeInUp delay-300">
+            <span class="iccon-star-1"></span> Sistema de RPG de Mesa
+        </div>
+        <h1 class="fs-16 xs-fs-13 fw-900 lh-1-1 m-20-b animated fadeInUp delay-500">
+            Pokémon<br><span class="logo-text">Legends RPG</span>
+        </h1>
+        <p class="fs-9 xs-fs-7 opacity-7 m-30-b lh-1-6 animated fadeInUp delay-700">
+            Um sistema completo de RPG de mesa no universo Pokémon.
+            Crie seu treinador, capture Pokémon, desafie ginásios e
+            torne-se o Campeão da Liga!
+        </p>
+        <div class="d-flex f-justify-center f-gap-15 f-wrap animated fadeInUp delay-1000">
+            <a href="#treinador" class="btn-pk btn-red">
+                <span class="iccon-user-1"></span> Criar Treinador
+            </a>
+            <a href="#sistema" class="btn-pk btn-outline">
+                <span class="iccon-book-2"></span> Ver Regras
+            </a>
+        </div>
+        <div class="d-flex f-justify-center f-gap-30 m-50-t animated fadeInUp delay-1250">
+            <div class="text-center">
+                <div class="fs-13 fw-800 logo-text">2d6</div>
+                <div class="fs-2 opacity-5 m-5-t text-uppercase">Sistema de Dados</div>
+            </div>
+            <div class="text-center">
+                <div class="fs-13 fw-800 logo-text">151</div>
+                <div class="fs-2 opacity-5 m-5-t text-uppercase">Pokémon Gen 1</div>
+            </div>
+            <div class="text-center">
+                <div class="fs-13 fw-800 logo-text">18</div>
+                <div class="fs-2 opacity-5 m-5-t text-uppercase">Tipos</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SISTEMA / REGRAS -->
+<section id="sistema" class="p-80-tb xs-p-40-tb">
+    <div class="container">
+        <div class="text-center m-50-b">
+            <div class="section-badge badge-blue m-15-b">
+                <span class="iccon-book-2"></span> Regras
+            </div>
+            <h2 class="fs-14 xs-fs-11 fw-800 m-15-b">Como Funciona</h2>
+            <p class="fs-8 opacity-6 w-600px m-auto-lr xs-w-100">
+                Conheça as mecânicas centrais do sistema Pokémon Legends RPG
+            </p>
+            <div class="section-divider m-auto-lr m-20-t"></div>
+        </div>
+
+        <!-- Regras Cards -->
+        <div class="row gap-15">
+            <div class="c-xs-12 c-sm-6 c-lg-3">
+                <div class="pk-card p-25-all h-100 wow fadeInUp">
+                    <div class="fs-14 m-15-b">🎲</div>
+                    <h4 class="fs-8 fw-700 m-10-b">Sistema 2d6</h4>
+                    <p class="fs-5 opacity-6 lh-1-6">Todas as rolagens usam 2 dados de 6 faces + modificadores. Simples, rápido e divertido.</p>
+                </div>
+            </div>
+            <div class="c-xs-12 c-sm-6 c-lg-3">
+                <div class="pk-card p-25-all h-100 wow fadeInUp" data-wow-delay="0.1s">
+                    <div class="fs-14 m-15-b">⚔️</div>
+                    <h4 class="fs-8 fw-700 m-10-b">Batalhas Táticas</h4>
+                    <p class="fs-5 opacity-6 lh-1-6">Turnos baseados em Velocidade. Escolha movimentos, role ataques e calcule dano com efetividade de tipo.</p>
+                </div>
+            </div>
+            <div class="c-xs-12 c-sm-6 c-lg-3">
+                <div class="pk-card p-25-all h-100 wow fadeInUp" data-wow-delay="0.2s">
+                    <div class="fs-14 m-15-b">🔴</div>
+                    <h4 class="fs-8 fw-700 m-10-b">Captura</h4>
+                    <p class="fs-5 opacity-6 lh-1-6">Enfraqueça o Pokémon selvagem e role para capturar. HP baixo e Pokébolas melhores dão bônus.</p>
+                </div>
+            </div>
+            <div class="c-xs-12 c-sm-6 c-lg-3">
+                <div class="pk-card p-25-all h-100 wow fadeInUp" data-wow-delay="0.3s">
+                    <div class="fs-14 m-15-b">🏆</div>
+                    <h4 class="fs-8 fw-700 m-10-b">8 Ginásios</h4>
+                    <p class="fs-5 opacity-6 lh-1-6">Conquiste as 8 insígnias, cada uma com bônus permanentes, e desafie a Liga Pokémon!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Regras Detalhadas (Accordion) -->
+        <div class="m-50-t" id="rules-accordion">
+            <div class="rule-toggle p-20-all m-10-b" onclick="toggleRule(this)">
+                <div class="d-flex f-items-center f-justify-between">
+                    <div class="d-flex f-items-center f-gap-10">
+                        <span class="fs-9">⚔️</span>
+                        <h4 class="fs-7 fw-700">Sistema de Batalha</h4>
+                    </div>
+                    <span class="iccon-arrow-down-1 opacity-5"></span>
+                </div>
+                <div class="rule-content">
+                    <div class="p-15-t">
+                        <table class="pk-table">
+                            <tr><th>Etapa</th><th>Descrição</th></tr>
+                            <tr><td>1. Iniciativa</td><td>Pokémon com maior <strong>Velocidade</strong> age primeiro. Empate: rolar 1d6.</td></tr>
+                            <tr><td>2. Escolher Movimento</td><td>Cada Pokémon tem 4 movimentos com tipo e poder.</td></tr>
+                            <tr><td>3. Rolar Ataque</td><td><strong>2d6 + Ataque</strong> (ou Sp.Ataque para golpes especiais)</td></tr>
+                            <tr><td>4. Calcular Dano</td><td>(Rolagem - Defesa do alvo) × Efetividade de Tipo. Mínimo 1.</td></tr>
+                            <tr><td>5. Crítico</td><td>Par duplo nos dados = <strong>Dano ×1.5</strong></td></tr>
+                            <tr><td>6. Falha</td><td>Soma dos dados = 2 (snake eyes) = Erro total</td></tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="rule-toggle p-20-all m-10-b" onclick="toggleRule(this)">
+                <div class="d-flex f-items-center f-justify-between">
+                    <div class="d-flex f-items-center f-gap-10">
+                        <span class="fs-9">🔴</span>
+                        <h4 class="fs-7 fw-700">Captura de Pokémon</h4>
+                    </div>
+                    <span class="iccon-arrow-down-1 opacity-5"></span>
+                </div>
+                <div class="rule-content">
+                    <div class="p-15-t">
+                        <p class="fs-6 lh-1-7 m-10-b"><strong>Rolagem:</strong> 2d6 + Bônus do Treinador + Bônus de HP + Bônus da Pokébola</p>
+                        <div class="row gap-15 m-15-t">
+                            <div class="c-xs-12 c-md-4">
+                                <div class="p-15-all border-all border-rd-8">
+                                    <h5 class="fs-5 fw-700 m-5-b">Bônus de HP</h5>
+                                    <p class="fs-4 opacity-6">HP > 50%: +0</p>
+                                    <p class="fs-4 opacity-6">HP 25-50%: +2</p>
+                                    <p class="fs-4 opacity-6">HP < 25%: +4</p>
+                                </div>
+                            </div>
+                            <div class="c-xs-12 c-md-4">
+                                <div class="p-15-all border-all border-rd-8">
+                                    <h5 class="fs-5 fw-700 m-5-b">Pokébolas</h5>
+                                    <p class="fs-4 opacity-6">Pokébola: +0</p>
+                                    <p class="fs-4 opacity-6">Great Ball: +1</p>
+                                    <p class="fs-4 opacity-6">Ultra Ball: +2</p>
+                                    <p class="fs-4 opacity-6">Master Ball: Auto</p>
+                                </div>
+                            </div>
+                            <div class="c-xs-12 c-md-4">
+                                <div class="p-15-all border-all border-rd-8">
+                                    <h5 class="fs-5 fw-700 m-5-b">Dificuldade por Rank</h5>
+                                    <p class="fs-4 rank-common">Comum: 6+</p>
+                                    <p class="fs-4 rank-uncommon">Incomum: 8+</p>
+                                    <p class="fs-4 rank-rare">Raro: 10+</p>
+                                    <p class="fs-4 rank-legendary">Lendário: 12+</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="rule-toggle p-20-all m-10-b" onclick="toggleRule(this)">
+                <div class="d-flex f-items-center f-justify-between">
+                    <div class="d-flex f-items-center f-gap-10">
+                        <span class="fs-9">✨</span>
+                        <h4 class="fs-7 fw-700">Evolução e XP</h4>
+                    </div>
+                    <span class="iccon-arrow-down-1 opacity-5"></span>
+                </div>
+                <div class="rule-content">
+                    <div class="p-15-t">
+                        <p class="fs-6 lh-1-7 m-10-b">Pokémon ganham XP e podem evoluir, recebendo <strong>+20% em todos os stats</strong>.</p>
+                        <table class="pk-table">
+                            <tr><th>Fonte de XP</th><th>Quantidade</th></tr>
+                            <tr><td>Vitória contra Pokémon selvagem</td><td>+1 XP</td></tr>
+                            <tr><td>Vitória contra treinador</td><td>+3 XP</td></tr>
+                            <tr><td>Vitória de Ginásio</td><td>+5 XP</td></tr>
+                        </table>
+                        <table class="pk-table m-15-t">
+                            <tr><th>Evolução</th><th>XP Necessário</th></tr>
+                            <tr><td>1ª Evolução</td><td>10 XP</td></tr>
+                            <tr><td>2ª Evolução</td><td>25 XP</td></tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="rule-toggle p-20-all m-10-b" onclick="toggleRule(this)">
+                <div class="d-flex f-items-center f-justify-between">
+                    <div class="d-flex f-items-center f-gap-10">
+                        <span class="fs-9">🏅</span>
+                        <h4 class="fs-7 fw-700">Insígnias de Ginásio</h4>
+                    </div>
+                    <span class="iccon-arrow-down-1 opacity-5"></span>
+                </div>
+                <div class="rule-content">
+                    <div class="p-15-t">
+                        <table class="pk-table">
+                            <tr><th>#</th><th>Insígnia</th><th>Bônus Permanente</th></tr>
+                            <tr><td>1</td><td>Rocha</td><td>+1 Defesa (time todo)</td></tr>
+                            <tr><td>2</td><td>Cascata</td><td>+1 Sp.Ataque (time todo)</td></tr>
+                            <tr><td>3</td><td>Trovão</td><td>+1 Velocidade (time todo)</td></tr>
+                            <tr><td>4</td><td>Arco-Íris</td><td>+1 HP (time todo)</td></tr>
+                            <tr><td>5</td><td>Alma</td><td>+1 Sp.Defesa (time todo)</td></tr>
+                            <tr><td>6</td><td>Pântano</td><td>+1 Ataque (time todo)</td></tr>
+                            <tr><td>7</td><td>Vulcão</td><td>Re-rolar 1 dado por batalha</td></tr>
+                            <tr><td>8</td><td>Terra</td><td>+1 em TODOS os stats</td></tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CRIADOR DE TREINADOR -->
+<section id="treinador" class="p-80-tb xs-p-40-tb" style="background: var(--pk-dark);">
+    <div class="container">
+        <div class="text-center m-50-b">
+            <div class="section-badge badge-red m-15-b">
+                <span class="iccon-user-1"></span> Treinador
+            </div>
+            <h2 class="fs-14 xs-fs-11 fw-800 m-15-b">Crie Seu Treinador</h2>
+            <p class="fs-8 opacity-6 w-600px m-auto-lr xs-w-100">
+                Escolha sua classe, role seus atributos e comece sua jornada!
+            </p>
+            <div class="section-divider m-auto-lr m-20-t"></div>
+        </div>
+
+        <div class="row gap-30">
+            <!-- Form -->
+            <div class="c-xs-12 c-md-6">
+                <div class="pk-card p-30-all">
+                    <h3 class="fs-9 fw-700 m-20-b">
+                        <span class="iccon-edit-1 m-5-r"></span> Dados do Treinador
+                    </h3>
+
+                    <div class="m-15-b">
+                        <label class="fs-4 fw-600 opacity-6 text-uppercase d-block m-5-b">Nome</label>
+                        <input type="text" class="pk-input" id="trainer-name" placeholder="Seu nome de treinador..." maxlength="20">
+                    </div>
+
+                    <div class="m-20-b">
+                        <label class="fs-4 fw-600 opacity-6 text-uppercase d-block m-5-b">Classe</label>
+                        <div class="row gap-10">
+                            <div class="c-xs-6 c-sm-3">
+                                <div class="p-15-all border-all border-rd-8 text-center cursor-pointer class-option" data-class="desafiante" onclick="selectClass(this)">
+                                    <div class="fs-11 m-5-b">⚔️</div>
+                                    <div class="fs-4 fw-700">Desafiante</div>
+                                    <div class="fs-2 opacity-5 m-5-t">+2 Intelecto</div>
+                                </div>
+                            </div>
+                            <div class="c-xs-6 c-sm-3">
+                                <div class="p-15-all border-all border-rd-8 text-center cursor-pointer class-option" data-class="pesquisador" onclick="selectClass(this)">
+                                    <div class="fs-11 m-5-b">🔬</div>
+                                    <div class="fs-4 fw-700">Pesquisador</div>
+                                    <div class="fs-2 opacity-5 m-5-t">+2 Intelecto</div>
+                                </div>
+                            </div>
+                            <div class="c-xs-6 c-sm-3">
+                                <div class="p-15-all border-all border-rd-8 text-center cursor-pointer class-option" data-class="criador" onclick="selectClass(this)">
+                                    <div class="fs-11 m-5-b">💖</div>
+                                    <div class="fs-4 fw-700">Criador</div>
+                                    <div class="fs-2 opacity-5 m-5-t">+2 Carisma</div>
+                                </div>
+                            </div>
+                            <div class="c-xs-6 c-sm-3">
+                                <div class="p-15-all border-all border-rd-8 text-center cursor-pointer class-option" data-class="ranger" onclick="selectClass(this)">
+                                    <div class="fs-11 m-5-b">🌿</div>
+                                    <div class="fs-4 fw-700">Ranger</div>
+                                    <div class="fs-2 opacity-5 m-5-t">+2 Sobreviv.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="m-20-b">
+                        <div class="d-flex f-items-center f-justify-between m-10-b">
+                            <label class="fs-4 fw-600 opacity-6 text-uppercase">Atributos</label>
+                            <button class="btn-pk btn-gold btn-sm" onclick="rollAllStats()">
+                                🎲 Rolar Todos (2d6)
+                            </button>
+                        </div>
+
+                        <div id="trainer-stats-container">
+                            <div class="d-flex f-items-center f-justify-between p-10-tb border-b" style="border-color: var(--pk-border);">
+                                <span class="fs-6 fw-600">Intelecto</span>
+                                <div class="d-flex f-items-center f-gap-10">
+                                    <div class="dice-container">
+                                        <div class="dice" id="dice-int-1">-</div>
+                                        <div class="dice" id="dice-int-2">-</div>
+                                    </div>
+                                    <span class="fs-8 fw-800 w-40px text-center" id="stat-int">-</span>
+                                </div>
+                            </div>
+                            <div class="d-flex f-items-center f-justify-between p-10-tb border-b" style="border-color: var(--pk-border);">
+                                <span class="fs-6 fw-600">Carisma</span>
+                                <div class="d-flex f-items-center f-gap-10">
+                                    <div class="dice-container">
+                                        <div class="dice" id="dice-car-1">-</div>
+                                        <div class="dice" id="dice-car-2">-</div>
+                                    </div>
+                                    <span class="fs-8 fw-800 w-40px text-center" id="stat-car">-</span>
+                                </div>
+                            </div>
+                            <div class="d-flex f-items-center f-justify-between p-10-tb border-b" style="border-color: var(--pk-border);">
+                                <span class="fs-6 fw-600">Agilidade</span>
+                                <div class="d-flex f-items-center f-gap-10">
+                                    <div class="dice-container">
+                                        <div class="dice" id="dice-agi-1">-</div>
+                                        <div class="dice" id="dice-agi-2">-</div>
+                                    </div>
+                                    <span class="fs-8 fw-800 w-40px text-center" id="stat-agi">-</span>
+                                </div>
+                            </div>
+                            <div class="d-flex f-items-center f-justify-between p-10-tb">
+                                <span class="fs-6 fw-600">Sobrevivência</span>
+                                <div class="d-flex f-items-center f-gap-10">
+                                    <div class="dice-container">
+                                        <div class="dice" id="dice-sob-1">-</div>
+                                        <div class="dice" id="dice-sob-2">-</div>
+                                    </div>
+                                    <span class="fs-8 fw-800 w-40px text-center" id="stat-sob">-</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="btn-pk btn-red w-100 f-justify-center" onclick="generateTrainerCard()">
+                        <span class="iccon-check-1"></span> Gerar Cartão de Treinador
+                    </button>
+
+                    <!-- Escolher Pokémon Inicial -->
+                    <div class="m-20-t p-20-all border-all border-rd-8" style="border-color: var(--pk-gold); background: rgba(255,222,0,0.05);">
+                        <h4 class="fs-7 fw-700 m-15-b">
+                            🔴 Escolha Seu Pokémon Inicial
+                        </h4>
+                        <p class="fs-5 opacity-6 m-15-b">
+                            Todo treinador começa com um Pokémon. Escolha entre os clássicos ou qualquer Pokémon comum!
+                        </p>
+                        <div class="row gap-10">
+                            <div class="c-xs-4">
+                                <div class="text-center p-15-all border-all border-rd-8 cursor-pointer starter-option" onclick="selectStarter(1)" style="border-color: var(--pk-border);">
+                                    <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png" style="width:64px;height:64px;image-rendering:pixelated;">
+                                    <div class="fs-5 fw-600 m-5-t">Bulbasaur</div>
+                                    <span class="type-badge type-grass">Planta</span>
+                                </div>
+                            </div>
+                            <div class="c-xs-4">
+                                <div class="text-center p-15-all border-all border-rd-8 cursor-pointer starter-option" onclick="selectStarter(4)" style="border-color: var(--pk-border);">
+                                    <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/4.png" style="width:64px;height:64px;image-rendering:pixelated;">
+                                    <div class="fs-5 fw-600 m-5-t">Charmander</div>
+                                    <span class="type-badge type-fire">Fogo</span>
+                                </div>
+                            </div>
+                            <div class="c-xs-4">
+                                <div class="text-center p-15-all border-rd-8 cursor-pointer starter-option" onclick="selectStarter(7)" style="border: 1px solid var(--pk-border);">
+                                    <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/7.png" style="width:64px;height:64px;image-rendering:pixelated;">
+                                    <div class="fs-5 fw-600 m-5-t">Squirtle</div>
+                                    <span class="type-badge type-water">Água</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="m-15-t text-center">
+                            <button class="btn-pk btn-outline btn-sm" onclick="showAllStarters()">
+                                🔍 Ver Todos Pokémon Comuns
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trainer Card Preview -->
+            <div class="c-xs-12 c-md-6">
+                <div id="trainer-card-preview" class="trainer-card-display p-30-all" style="min-height:400px;">
+                    <div class="text-center h-100 d-flex f-justify-center f-items-center" style="min-height:340px;" id="trainer-empty-state">
+                        <div>
+                            <div class="fs-16 opacity-2 m-15-b">👤</div>
+                            <p class="fs-7 opacity-3">Preencha os dados e gere<br>seu cartão de treinador</p>
+                        </div>
+                    </div>
+                    <div id="trainer-card-content" class="d-none">
+                        <div class="d-flex f-items-center f-justify-between m-20-b">
+                            <div>
+                                <div class="fs-3 opacity-5 text-uppercase fw-600 ls-2">Pokémon Legends RPG</div>
+                                <h3 class="fs-11 fw-800 m-5-t" id="card-name">-</h3>
+                            </div>
+                            <div class="text-right">
+                                <span class="section-badge badge-red" id="card-class">-</span>
+                            </div>
+                        </div>
+                        <div class="row gap-10 m-20-b">
+                            <div class="c-xs-6 c-sm-3">
+                                <div class="trainer-stat-box p-15-all">
+                                    <div class="fs-3 opacity-5 m-3-b">INT</div>
+                                    <div class="fs-11 fw-800" id="card-int">-</div>
+                                </div>
+                            </div>
+                            <div class="c-xs-6 c-sm-3">
+                                <div class="trainer-stat-box p-15-all">
+                                    <div class="fs-3 opacity-5 m-3-b">CAR</div>
+                                    <div class="fs-11 fw-800" id="card-car">-</div>
+                                </div>
+                            </div>
+                            <div class="c-xs-6 c-sm-3">
+                                <div class="trainer-stat-box p-15-all">
+                                    <div class="fs-3 opacity-5 m-3-b">AGI</div>
+                                    <div class="fs-11 fw-800" id="card-agi">-</div>
+                                </div>
+                            </div>
+                            <div class="c-xs-6 c-sm-3">
+                                <div class="trainer-stat-box p-15-all">
+                                    <div class="fs-3 opacity-5 m-3-b">SOB</div>
+                                    <div class="fs-11 fw-800" id="card-sob">-</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="border-all border-rd-8 p-15-all" style="border-color: var(--pk-border);">
+                            <div class="fs-3 opacity-5 text-uppercase fw-600 m-5-b">Habilidade Especial</div>
+                            <p class="fs-6 fw-500" id="card-ability">-</p>
+                        </div>
+                        <div class="m-20-t border-all border-rd-8 p-15-all" style="border-color: var(--pk-border);">
+                            <div class="fs-3 opacity-5 text-uppercase fw-600 m-5-b">Insígnias</div>
+                            <div class="d-flex f-gap-10 f-wrap" id="card-badges">
+                                <span class="opacity-3">🔘</span><span class="opacity-3">🔘</span><span class="opacity-3">🔘</span><span class="opacity-3">🔘</span>
+                                <span class="opacity-3">🔘</span><span class="opacity-3">🔘</span><span class="opacity-3">🔘</span><span class="opacity-3">🔘</span>
+                            </div>
+                        </div>
+                        <div class="d-flex f-items-center f-justify-between m-20-t opacity-4">
+                            <span class="fs-2">ID: <span id="card-id">000000</span></span>
+                            <span class="fs-2 pixel-font">PKM LEGENDS</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- POKÉDEX -->
+<section id="pokedex" class="p-80-tb xs-p-40-tb">
+    <div class="container">
+        <div class="text-center m-50-b">
+            <div class="section-badge badge-yellow m-15-b">
+                <span class="iccon-search-1"></span> Pokédex
+            </div>
+            <h2 class="fs-14 xs-fs-11 fw-800 m-15-b">Pokémon em Destaque</h2>
+            <p class="fs-8 opacity-6 w-600px m-auto-lr xs-w-100">
+                Starters, evoluções finais, icônicos e lendários da Gen I
+            </p>
+            <div class="section-divider m-auto-lr m-20-t"></div>
+        </div>
+
+        <!-- Pokédex Grid (Pokémon selecionados) -->
+        <div class="row gap-10" id="pokedex-grid">
+            <!-- Filled by JS -->
+        </div>
+
+        <div class="text-center m-30-t">
+            <a href="pokedex.html" class="btn-pk btn-gold">
+                📖 Ver Todos os 151 Pokémon na Pokédex Completa
+            </a>
+        </div>
+
+        <!-- Pokémon Detail Modal -->
+        <div data-modal="pokemon-detail" class="modal-dialog" aria-hidden="true">
+            <div class="dialog-content">
+                <div class="dialog-backdrop" data-modal-hide></div>
+                <div class="dialog-inline w-600px xs-w-100">
+                    <button class="dialog-close" data-modal-hide></button>
+                    <div class="modal-popup border-rd-12 p-30-all" style="background: var(--pk-card);">
+                        <div id="pokemon-detail-content"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- MEU TIME -->
+<section id="meu-time" class="p-80-tb xs-p-40-tb" style="background: var(--pk-dark);">
+    <div class="container">
+        <div class="text-center m-50-b">
+            <div class="section-badge badge-green m-15-b">
+                <span class="iccon-star-1"></span> Meu Time
+            </div>
+            <h2 class="fs-14 xs-fs-11 fw-800 m-15-b">Gerencie Seu Time</h2>
+            <p class="fs-8 opacity-6 w-600px m-auto-lr xs-w-100">
+                Adicione, edite e gerencie seus Pokémon. Escolha levels, naturezas e movimentos!
+            </p>
+            <div class="section-divider m-auto-lr m-20-t"></div>
+        </div>
+
+        <div class="row gap-30">
+            <!-- Adicionar Pokémon -->
+            <div class="c-xs-12 c-lg-5">
+                <div class="pk-card p-30-all">
+                    <h3 class="fs-9 fw-700 m-20-b">
+                        ➕ Adicionar Pokémon ao Time
+                    </h3>
+
+                    <div class="m-15-b">
+                        <label class="fs-4 fw-600 opacity-6 text-uppercase d-block m-5-b">Pokémon</label>
+                        <select class="pk-select" id="team-pokemon-select">
+                            <option value="">Selecione um Pokémon...</option>
+                        </select>
+                    </div>
+
+                    <div class="row gap-10 m-15-b">
+                        <div class="c-xs-6">
+                            <label class="fs-4 fw-600 opacity-6 text-uppercase d-block m-5-b">Level</label>
+                            <input type="number" class="pk-input" id="team-level" value="5" min="1" max="100">
+                        </div>
+                        <div class="c-xs-6">
+                            <label class="fs-4 fw-600 opacity-6 text-uppercase d-block m-5-b">Natureza</label>
+                            <select class="pk-select" id="team-nature">
+                                <option value="hardy">Hardy (Neutra)</option>
+                                <option value="brave">Brave (+ATK -SPD)</option>
+                                <option value="adamant">Adamant (+ATK -SPATK)</option>
+                                <option value="jolly">Jolly (+SPD -SPATK)</option>
+                                <option value="modest">Modest (+SPATK -ATK)</option>
+                                <option value="timid">Timid (+SPD -ATK)</option>
+                                <option value="bold">Bold (+DEF -ATK)</option>
+                                <option value="calm">Calm (+SPDEF -ATK)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="m-15-b">
+                        <label class="fs-4 fw-600 opacity-6 text-uppercase d-block m-5-b">Apelido (Opcional)</label>
+                        <input type="text" class="pk-input" id="team-nickname" placeholder="Digite um apelido..." maxlength="12">
+                    </div>
+
+                    <div id="team-moves-container" class="m-15-b d-none">
+                        <label class="fs-4 fw-600 opacity-6 text-uppercase d-block m-10-b">
+                            Movimentos (Max 4)
+                        </label>
+                        <div id="team-moves-list"></div>
+                    </div>
+
+                    <div class="d-flex f-gap-10">
+                        <button class="btn-pk btn-gold flex-1 f-justify-center" onclick="previewTeamPokemon()">
+                            👁️ Preview
+                        </button>
+                        <button class="btn-pk btn-green flex-1 f-justify-center" onclick="addToTeam()">
+                            ➕ Adicionar
+                        </button>
+                    </div>
+
+                    <!-- Preview Area -->
+                    <div id="team-preview" class="m-20-t p-20-all border-all border-rd-8 d-none" style="border-color: var(--pk-border); background: rgba(0,0,0,0.2);">
+                        <div class="text-center">
+                            <img id="team-preview-sprite" src="" style="width:96px;height:96px;image-rendering:pixelated;">
+                            <div class="fs-8 fw-700 m-10-t" id="team-preview-name">-</div>
+                            <div id="team-preview-types" class="m-5-t"></div>
+                            <div class="fs-5 m-10-t opacity-6" id="team-preview-stats">-</div>
+                            <div class="fs-4 m-10-t opacity-5" id="team-preview-nature">-</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lista do Time -->
+            <div class="c-xs-12 c-lg-7">
+                <div class="pk-card p-30-all" style="min-height: 400px;">
+                    <div class="d-flex f-items-center f-justify-between m-20-b">
+                        <h3 class="fs-9 fw-700">
+                            🎯 Meu Time <span id="team-count" class="fs-6 opacity-5">(0/6)</span>
+                        </h3>
+                        <button class="btn-pk btn-outline btn-sm" onclick="clearTeam()">
+                            🗑️ Limpar Tudo
+                        </button>
+                    </div>
+
+                    <div id="team-list-container">
+                        <div id="team-empty" class="text-center p-50-tb opacity-3">
+                            <div class="fs-16 m-15-b">⚪</div>
+                            <p class="fs-6">Seu time está vazio<br>Adicione Pokémon ao lado!</p>
+                        </div>
+                        <div id="team-list" class="d-none"></div>
+                    </div>
+                </div>
+
+                <!-- Botões de Ação -->
+                <div class="d-flex f-gap-10 m-15-t">
+                    <button class="btn-pk btn-blue flex-1 f-justify-center" onclick="useTeamInBattle()">
+                        ⚔️ Usar na Batalha
+                    </button>
+                    <button class="btn-pk btn-outline flex-1 f-justify-center" onclick="exportTeam()">
+                        💾 Exportar Time
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SIMULADOR DE BATALHA -->
+<section id="batalha" class="p-80-tb xs-p-40-tb" style="background: var(--pk-dark);">
+    <div class="container">
+        <div class="text-center m-50-b">
+            <div class="section-badge badge-red m-15-b">
+                <span class="iccon-play-1"></span> Batalha
+            </div>
+            <h2 class="fs-14 xs-fs-11 fw-800 m-15-b">Simulador de Batalha</h2>
+            <p class="fs-8 opacity-6 w-600px m-auto-lr xs-w-100">
+                Escolha dois Pokémon e simule uma batalha completa com rolagem de dados!
+            </p>
+            <div class="section-divider m-auto-lr m-20-t"></div>
+        </div>
+
+        <!-- Seleção -->
+        <div class="row gap-20 m-30-b">
+            <div class="c-xs-12 c-md-5">
+                <div class="pk-card p-20-all">
+                    <label class="fs-4 fw-600 opacity-6 text-uppercase d-block m-5-b">Pokémon 1</label>
+                    <select class="pk-select" id="battle-pk1" onchange="updateBattlePreview()">
+                        <option value="">Selecione...</option>
+                    </select>
+                    <div class="row gap-10 m-10-t">
+                        <div class="c-xs-6">
+                            <label class="fs-2 fw-600 opacity-5 d-block m-3-b">Level</label>
+                            <input type="number" class="pk-input" id="battle-lvl1" value="5" min="1" max="100" style="padding:6px 8px;font-size:12px;">
+                        </div>
+                        <div class="c-xs-6">
+                            <label class="fs-2 fw-600 opacity-5 d-block m-3-b">Natureza</label>
+                            <select class="pk-select" id="battle-nat1" style="padding:6px 8px;font-size:12px;">
+                                <option value="hardy">Hardy</option>
+                                <option value="adamant">Adamant</option>
+                                <option value="jolly">Jolly</option>
+                                <option value="modest">Modest</option>
+                                <option value="timid">Timid</option>
+                                <option value="brave">Brave</option>
+                                <option value="bold">Bold</option>
+                                <option value="calm">Calm</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="battle-preview-1" class="m-15-t text-center d-none">
+                        <img id="bp1-sprite" class="pokemon-sprite" src="" alt="">
+                        <div class="fs-8 fw-700 m-5-t" id="bp1-name">-</div>
+                        <div id="bp1-types" class="m-5-t"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="c-xs-12 c-md-2 d-flex f-justify-center f-items-center">
+                <div class="vs-text">VS</div>
+            </div>
+            <div class="c-xs-12 c-md-5">
+                <div class="pk-card p-20-all">
+                    <label class="fs-4 fw-600 opacity-6 text-uppercase d-block m-5-b">Pokémon 2</label>
+                    <select class="pk-select" id="battle-pk2" onchange="updateBattlePreview()">
+                        <option value="">Selecione...</option>
+                    </select>
+                    <div class="row gap-10 m-10-t">
+                        <div class="c-xs-6">
+                            <label class="fs-2 fw-600 opacity-5 d-block m-3-b">Level</label>
+                            <input type="number" class="pk-input" id="battle-lvl2" value="5" min="1" max="100" style="padding:6px 8px;font-size:12px;">
+                        </div>
+                        <div class="c-xs-6">
+                            <label class="fs-2 fw-600 opacity-5 d-block m-3-b">Natureza</label>
+                            <select class="pk-select" id="battle-nat2" style="padding:6px 8px;font-size:12px;">
+                                <option value="hardy">Hardy</option>
+                                <option value="adamant">Adamant</option>
+                                <option value="jolly">Jolly</option>
+                                <option value="modest">Modest</option>
+                                <option value="timid">Timid</option>
+                                <option value="brave">Brave</option>
+                                <option value="bold">Bold</option>
+                                <option value="calm">Calm</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="battle-preview-2" class="m-15-t text-center d-none">
+                        <img id="bp2-sprite" class="pokemon-sprite" src="" alt="">
+                        <div class="fs-8 fw-700 m-5-t" id="bp2-name">-</div>
+                        <div id="bp2-types" class="m-5-t"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center m-20-b">
+            <button class="btn-pk btn-red" onclick="startBattle()">
+                ⚔️ Iniciar Batalha!
+            </button>
+        </div>
+
+        <!-- Arena -->
+        <div id="battle-arena" class="arena-bg p-30-all d-none">
+            <div class="row gap-20">
+                <div class="c-xs-12 c-md-5">
+                    <div class="d-flex f-items-center f-gap-15 m-10-b">
+                        <img id="arena-sprite-1" class="w-60px" style="image-rendering: pixelated;" src="" alt="">
+                        <div class="f-grow-1">
+                            <div class="d-flex f-justify-between fs-6 fw-600 m-3-b">
+                                <span id="arena-name-1">-</span>
+                                <span id="arena-hp-text-1">-</span>
+                            </div>
+                            <div class="hp-bar-bg">
+                                <div class="hp-bar-fill" id="arena-hp-1" style="width:100%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="c-xs-12 c-md-2 d-flex f-justify-center f-items-center">
+                    <div class="dice-container" id="battle-dice">
+                        <div class="dice" id="battle-d1">-</div>
+                        <div class="dice" id="battle-d2">-</div>
+                    </div>
+                </div>
+                <div class="c-xs-12 c-md-5">
+                    <div class="d-flex f-items-center f-gap-15 m-10-b">
+                        <div class="f-grow-1 text-right">
+                            <div class="d-flex f-justify-between fs-6 fw-600 m-3-b">
+                                <span id="arena-hp-text-2">-</span>
+                                <span id="arena-name-2">-</span>
+                            </div>
+                            <div class="hp-bar-bg">
+                                <div class="hp-bar-fill" id="arena-hp-2" style="width:100%"></div>
+                            </div>
+                        </div>
+                        <img id="arena-sprite-2" class="w-60px" style="image-rendering: pixelated;" src="" alt="">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Battle Log -->
+            <div class="battle-log m-20-t p-10-all" id="battle-log">
+                <div class="log-entry log-info">Batalha iniciada!</div>
+            </div>
+
+            <div class="text-center m-20-t">
+                <button class="btn-pk btn-gold btn-sm" id="btn-next-turn" onclick="nextBattleTurn()">
+                    🎲 Próximo Turno
+                </button>
+                <button class="btn-pk btn-outline btn-sm d-none" id="btn-reset-battle" onclick="resetBattle()">
+                    <span class="iccon-undo-1"></span> Nova Batalha
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- TABELA DE TIPOS -->
+<section id="tipos" class="p-80-tb xs-p-40-tb">
+    <div class="container">
+        <div class="text-center m-50-b">
+            <div class="section-badge badge-green m-15-b">
+                <span class="iccon-chart-1"></span> Tipos
+            </div>
+            <h2 class="fs-14 xs-fs-11 fw-800 m-15-b">Tabela de Efetividade</h2>
+            <p class="fs-8 opacity-6 w-600px m-auto-lr xs-w-100">
+                Consulte as vantagens e fraquezas de cada tipo
+            </p>
+            <div class="section-divider m-auto-lr m-20-t"></div>
+        </div>
+
+        <!-- Calculadora Rápida -->
+        <div class="pk-card p-30-all m-30-b">
+            <h3 class="fs-9 fw-700 m-20-b text-center">Calculadora de Tipo</h3>
+            <div class="row gap-20">
+                <div class="c-xs-12 c-md-5">
+                    <label class="fs-4 fw-600 opacity-6 text-uppercase d-block m-5-b">Tipo Atacante</label>
+                    <select class="pk-select" id="calc-atk-type" onchange="calcTypeEffect()">
+                        <option value="">Selecione...</option>
+                    </select>
+                </div>
+                <div class="c-xs-12 c-md-2 d-flex f-justify-center f-items-center">
+                    <span class="iccon-arrow-right-1 fs-11 opacity-3"></span>
+                </div>
+                <div class="c-xs-12 c-md-5">
+                    <label class="fs-4 fw-600 opacity-6 text-uppercase d-block m-5-b">Tipo Defensor</label>
+                    <select class="pk-select" id="calc-def-type" onchange="calcTypeEffect()">
+                        <option value="">Selecione...</option>
+                    </select>
+                </div>
+            </div>
+            <div class="text-center m-20-t">
+                <div class="fs-14 fw-800" id="calc-result">-</div>
+                <div class="fs-6 opacity-5 m-5-t" id="calc-result-text">Selecione ambos os tipos</div>
+            </div>
+        </div>
+
+        <!-- Full Type Chart -->
+        <div class="type-chart-scroll pk-card p-20-all">
+            <div id="type-chart-container"></div>
+        </div>
+    </div>
+</section>
+
+<!-- ROLLER / FERRAMENTA DE DADOS -->
+<section class="p-80-tb xs-p-40-tb" style="background: var(--pk-dark);">
+    <div class="container">
+        <div class="text-center m-50-b">
+            <div class="section-badge badge-yellow m-15-b">
+                🎲 Dados
+            </div>
+            <h2 class="fs-14 xs-fs-11 fw-800 m-15-b">Rolador de Dados</h2>
+            <p class="fs-8 opacity-6 w-600px m-auto-lr xs-w-100">
+                Ferramenta rápida para rolar dados durante a sessão
+            </p>
+            <div class="section-divider m-auto-lr m-20-t"></div>
+        </div>
+
+        <div class="row gap-20">
+            <div class="c-xs-12 c-md-4">
+                <div class="pk-card p-30-all text-center">
+                    <h4 class="fs-8 fw-700 m-15-b">1d6</h4>
+                    <div class="dice-container f-justify-center m-15-b">
+                        <div class="dice" id="quick-d1" style="width:70px;height:70px;font-size:32px;">-</div>
+                    </div>
+                    <button class="btn-pk btn-blue btn-sm" onclick="quickRoll(1)">Rolar 1d6</button>
+                </div>
+            </div>
+            <div class="c-xs-12 c-md-4">
+                <div class="pk-card p-30-all text-center">
+                    <h4 class="fs-8 fw-700 m-15-b">2d6</h4>
+                    <div class="dice-container f-justify-center m-15-b">
+                        <div class="dice" id="quick-d2a" style="width:70px;height:70px;font-size:32px;">-</div>
+                        <div class="dice" id="quick-d2b" style="width:70px;height:70px;font-size:32px;">-</div>
+                    </div>
+                    <div class="fs-11 fw-800 m-10-b" id="quick-d2-total">-</div>
+                    <button class="btn-pk btn-blue btn-sm" onclick="quickRoll(2)">Rolar 2d6</button>
+                </div>
+            </div>
+            <div class="c-xs-12 c-md-4">
+                <div class="pk-card p-30-all text-center">
+                    <h4 class="fs-8 fw-700 m-15-b">2d6 + Mod</h4>
+                    <div class="d-flex f-justify-center f-items-center f-gap-10 m-15-b">
+                        <div class="dice" id="quick-d3a" style="width:70px;height:70px;font-size:32px;">-</div>
+                        <div class="dice" id="quick-d3b" style="width:70px;height:70px;font-size:32px;">-</div>
+                        <span class="fs-11 fw-800">+</span>
+                        <input type="number" class="pk-input text-center" id="quick-mod" value="0" style="width:60px;font-size:20px;font-weight:800;">
+                    </div>
+                    <div class="fs-11 fw-800 m-10-b" id="quick-d3-total">-</div>
+                    <button class="btn-pk btn-blue btn-sm" onclick="quickRoll(3)">Rolar 2d6+Mod</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer-bg p-40-tb">
+    <div class="container">
+        <div class="row gap-20">
+            <div class="c-xs-12 c-md-6">
+                <div class="d-flex f-items-center f-gap-10 m-10-b">
+                    <span class="pixel-font fs-4 logo-text">PKM</span>
+                    <span class="fw-700 fs-7">Legends RPG</span>
+                </div>
+                <p class="fs-5 opacity-5 lh-1-6">
+                    Sistema fan-made de RPG de mesa no universo Pokémon.<br>
+                    Pokémon &copy; Nintendo / Game Freak / Creatures Inc.
+                </p>
+            </div>
+            <div class="c-xs-12 c-md-3">
+                <h4 class="fs-5 fw-700 m-10-b text-uppercase opacity-6">Navegação</h4>
+                <div class="d-flex f-col f-gap-5">
+                    <a href="#sistema" class="fs-5 opacity-5 cursor-pointer" style="color: var(--pk-text); text-decoration:none;">Regras do Sistema</a>
+                    <a href="#treinador" class="fs-5 opacity-5 cursor-pointer" style="color: var(--pk-text); text-decoration:none;">Criar Treinador</a>
+                    <a href="#pokedex" class="fs-5 opacity-5 cursor-pointer" style="color: var(--pk-text); text-decoration:none;">Pokédex</a>
+                    <a href="pokedex.html" class="fs-5 opacity-5 cursor-pointer" style="color: var(--pk-text); text-decoration:none;">Pokédex Completa</a>
+                    <a href="#batalha" class="fs-5 opacity-5 cursor-pointer" style="color: var(--pk-text); text-decoration:none;">Simulador de Batalha</a>
+                </div>
+            </div>
+            <div class="c-xs-12 c-md-3">
+                <h4 class="fs-5 fw-700 m-10-b text-uppercase opacity-6">Sistema</h4>
+                <p class="fs-4 opacity-4 lh-1-6">Dados: 2d6</p>
+                <p class="fs-4 opacity-4 lh-1-6">Pokémon: Gen I (151)</p>
+                <p class="fs-4 opacity-4 lh-1-6">18 Tipos</p>
+                <p class="fs-4 opacity-4 lh-1-6">8 Ginásios + Liga</p>
+            </div>
+        </div>
+        <div class="border-t m-30-t p-20-t text-center" style="border-color: var(--pk-border);">
+            <p class="fs-3 opacity-3">Pokémon Legends RPG &mdash; Projeto educacional fan-made. Feito com Squeleton.</p>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.squeleton.dev/squeleton-scripts.v4.min.js"></script>
+<!-- Banco de Dados dos 151 Pokémon Gen 1 -->
+<script src="pokemon-db.js"></script>
+<script src="pokemon-mechanics.js"></script>
+<script src="pokemon-data-extended.js"></script>
+<script>
+// ===========================
+// POKÉMON DATABASE
+// ===========================
+// Carregado de pokemon-db.js (151 Pokémon Gen 1 completos)
+
+// ===========================
+// TYPE EFFECTIVENESS CHART
+// ===========================
+const TYPES = ["normal","fire","water","grass","electric","ice","fighting","poison","ground","flying","psychic","bug","rock","ghost","dragon","dark","steel","fairy"];
+
+const TYPE_NAMES = {
+    normal:"Normal", fire:"Fogo", water:"Água", grass:"Planta", electric:"Elétrico",
+    ice:"Gelo", fighting:"Lutador", poison:"Veneno", ground:"Terra", flying:"Voador",
+    psychic:"Psíquico", bug:"Inseto", rock:"Pedra", ghost:"Fantasma", dragon:"Dragão",
+    dark:"Sombrio", steel:"Aço", fairy:"Fada"
+};
+
+// effectiveness[attacking][defending] = multiplier
+const EFF = {};
+TYPES.forEach(t => { EFF[t] = {}; TYPES.forEach(d => EFF[t][d] = 1); });
+
+// Super effective (x2)
+const SE = {
+    fire:["grass","ice","bug","steel"], water:["fire","ground","rock"], grass:["water","ground","rock"],
+    electric:["water","flying"], ice:["grass","ground","flying","dragon"], fighting:["normal","ice","rock","dark","steel"],
+    poison:["grass","fairy"], ground:["fire","electric","poison","rock","steel"], flying:["grass","fighting","bug"],
+    psychic:["fighting","poison"], bug:["grass","psychic","dark"], rock:["fire","ice","flying","bug"],
+    ghost:["psychic","ghost"], dragon:["dragon"], dark:["psychic","ghost"], steel:["ice","rock","fairy"],
+    fairy:["fighting","dragon","dark"]
+};
+// Not very effective (x0.5)
+const NVE = {
+    normal:["rock","steel"], fire:["fire","water","rock","dragon"], water:["water","grass","dragon"],
+    grass:["fire","grass","poison","flying","bug","dragon","steel"], electric:["grass","electric","dragon"],
+    ice:["fire","water","ice","steel"], fighting:["poison","flying","psychic","bug","fairy"],
+    poison:["poison","ground","rock","ghost"], ground:["grass","bug"], flying:["electric","rock","steel"],
+    psychic:["psychic","steel"], bug:["fire","fighting","poison","flying","ghost","steel","fairy"],
+    rock:["fighting","ground","steel"], ghost:["dark"], dragon:["steel"], dark:["fighting","dark","fairy"],
+    steel:["fire","water","electric","steel"], fairy:["fire","poison","steel"]
+};
+// Immune (x0)
+const IMM = {
+    normal:["ghost"], electric:["ground"], fighting:["ghost"], poison:["steel"],
+    ground:["flying"], psychic:["dark"], ghost:["normal"], dragon:["fairy"]
+};
+
+Object.entries(SE).forEach(([atk, defs]) => defs.forEach(d => EFF[atk][d] = 2));
+Object.entries(NVE).forEach(([atk, defs]) => defs.forEach(d => EFF[atk][d] = 0.5));
+Object.entries(IMM).forEach(([atk, defs]) => defs.forEach(d => EFF[atk][d] = 0));
+
+// ===========================
+// SPRITE URL HELPER
+// ===========================
+function spriteUrl(id) {
+    return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
+}
+
+// ===========================
+// RULES ACCORDION
+// ===========================
+function toggleRule(el) {
+    const content = el.querySelector('.rule-content');
+    const isOpen = el.classList.contains('open');
+    // close all
+    document.querySelectorAll('.rule-toggle').forEach(r => {
+        r.classList.remove('open');
+        r.querySelector('.rule-content').classList.remove('open');
+    });
+    if (!isOpen) {
+        el.classList.add('open');
+        content.classList.add('open');
+    }
+}
+
+// ===========================
+// TRAINER CREATOR
+// ===========================
+let trainerData = { name:'', class:'', int:0, car:0, agi:0, sob:0 };
+
+function selectClass(el) {
+    document.querySelectorAll('.class-option').forEach(c => {
+        c.style.borderColor = 'var(--pk-border)';
+        c.style.background = 'transparent';
+    });
+    el.style.borderColor = 'var(--pk-red)';
+    el.style.background = 'rgba(220,10,45,0.1)';
+    trainerData.class = el.dataset.class;
+}
+
+function rollDice() {
+    return Math.floor(Math.random() * 6) + 1;
+}
+
+function animateDice(el, finalValue, delay) {
+    el.classList.add('rolling');
+    let count = 0;
+    const interval = setInterval(() => {
+        el.textContent = rollDice();
+        count++;
+        if (count > 8 + delay) {
+            clearInterval(interval);
+            el.textContent = finalValue;
+            el.classList.remove('rolling');
+        }
+    }, 60);
+}
+
+function rollAllStats() {
+    const stats = ['int','car','agi','sob'];
+    stats.forEach((stat, i) => {
+        const d1 = rollDice();
+        const d2 = rollDice();
+        const total = Math.max(d1 + d2, 3); // min 3
+        animateDice(document.getElementById(`dice-${stat}-1`), d1, i * 3);
+        animateDice(document.getElementById(`dice-${stat}-2`), d2, i * 3);
+        setTimeout(() => {
+            document.getElementById(`stat-${stat}`).textContent = total;
+            trainerData[stat] = total;
+        }, (i * 3 + 9) * 60);
+    });
+}
+
+const CLASS_INFO = {
+    desafiante: { label: 'Desafiante', ability: 'Re-rolagem Ofensiva: 1x por batalha, pode re-rolar qualquer dado de ataque. +2 INT.' },
+    pesquisador: { label: 'Pesquisador', ability: 'Pode analisar stats de Pokémon selvagem antes de batalhar. +2 Intelecto.' },
+    criador: { label: 'Criador', ability: 'Pokémon recuperam +3 HP extra por descanso. +2 Carisma para vínculos.' },
+    ranger: { label: 'Ranger', ability: '+2 em todas as rolagens de captura. +2 Sobrevivência em campo.' }
+};
+
+function generateTrainerCard() {
+    const name = document.getElementById('trainer-name').value.trim();
+    if (!name) { alert('Digite um nome!'); return; }
+    if (!trainerData.class) { alert('Escolha uma classe!'); return; }
+    if (!trainerData.int) { alert('Role os atributos primeiro!'); return; }
+
+    trainerData.name = name;
+
+    document.getElementById('trainer-empty-state').classList.add('d-none');
+    document.getElementById('trainer-card-content').classList.remove('d-none');
+
+    document.getElementById('card-name').textContent = trainerData.name;
+    document.getElementById('card-class').textContent = CLASS_INFO[trainerData.class].label;
+    document.getElementById('card-int').textContent = trainerData.int;
+    document.getElementById('card-car').textContent = trainerData.car;
+    document.getElementById('card-agi').textContent = trainerData.agi;
+    document.getElementById('card-sob').textContent = trainerData.sob;
+    document.getElementById('card-ability').textContent = CLASS_INFO[trainerData.class].ability;
+    document.getElementById('card-id').textContent = String(Math.floor(Math.random() * 999999)).padStart(6, '0');
+}
+
+function selectStarter(pokemonId) {
+    const pokemon = createBattlePokemon(pokemonId, 5, 'hardy');
+    if (!pokemon) return;
+
+    // Highlight selected
+    document.querySelectorAll('.starter-option').forEach(el => {
+        el.style.borderColor = 'var(--pk-border)';
+        el.style.background = '';
+    });
+    event.target.closest('.starter-option').style.borderColor = 'var(--pk-gold)';
+    event.target.closest('.starter-option').style.background = 'rgba(255,222,0,0.1)';
+
+    // Add to team if not already there
+    if (playerTeam.length === 0) {
+        playerTeam.push(pokemon);
+        saveTeamToStorage();
+        renderTeamList();
+        alert(`${pokemon.name} foi adicionado ao seu time como Pokémon inicial!`);
+
+        // Scroll to team section
+        setTimeout(() => {
+            document.getElementById('meu-time').scrollIntoView({ behavior: 'smooth' });
+        }, 500);
+    } else {
+        if (confirm(`Substituir seu Pokémon inicial atual por ${pokemon.name}?`)) {
+            playerTeam[0] = pokemon;
+            saveTeamToStorage();
+            renderTeamList();
+        }
+    }
+}
+
+function showAllStarters() {
+    const commonPokemon = POKEMON_DB.filter(p => p.rank === 'common');
+    const select = document.getElementById('team-pokemon-select');
+
+    // Scroll to team section and highlight select
+    document.getElementById('meu-time').scrollIntoView({ behavior: 'smooth' });
+
+    setTimeout(() => {
+        select.focus();
+        alert(`Escolha qualquer Pokémon "Common" na seção "Meu Time" abaixo!\nTotal de ${commonPokemon.length} Pokémon comuns disponíveis.`);
+    }, 500);
+}
+
+// ===========================
+// POKÉDEX
+// ===========================
+// Pokémon em destaque para o index (starters, evoluções finais, icônicos, lendários)
+const FEATURED_IDS = [
+    1, 4, 7,         // Starters base
+    3, 6, 9,         // Starters finais
+    25, 26,          // Pikachu, Raichu
+    59,              // Arcanine
+    65,              // Alakazam
+    94,              // Gengar
+    130,             // Gyarados
+    131,             // Lapras
+    143,             // Snorlax
+    133, 134, 135, 136, // Eevee + evoluções
+    149,             // Dragonite
+    144, 145, 146,   // Aves lendárias
+    150, 151         // Mewtwo, Mew
+];
+
+function renderPokedex() {
+    const grid = document.getElementById('pokedex-grid');
+    const featured = FEATURED_IDS.map(id => POKEMON_DB.find(p => p.id === id)).filter(Boolean);
+
+    grid.innerHTML = featured.map(p => {
+        const abilities = (typeof POKEMON_ABILITIES !== 'undefined' && POKEMON_ABILITIES[p.id]) || [];
+        return `
+        <div class="c-xs-6 c-sm-4 c-md-3 c-lg-2">
+            <div class="pokedex-card p-15-all text-center" onclick="showPokemonDetail(${p.id})">
+                <div class="pokedex-number">#${String(p.id).padStart(3,'0')}</div>
+                <img src="${spriteUrl(p.id)}" class="pokemon-sprite m-5-tb" alt="${p.name}" loading="lazy">
+                <div class="fs-6 fw-700">${p.name}</div>
+                <div class="m-5-t">
+                    ${p.types.map(t => `<span class="type-badge type-${t}">${TYPE_NAMES[t]}</span>`).join(' ')}
+                </div>
+                <div class="fs-2 m-5-t rank-${p.rank}">${p.rank.charAt(0).toUpperCase()+p.rank.slice(1)}</div>
+                ${abilities.length > 0 ? `<div class="fs-2 m-5-t opacity-4">${abilities.slice(0,2).join(' / ')}</div>` : ''}
+            </div>
+        </div>
+    `;}).join('');
+}
+
+function showPokemonDetail(id) {
+    const p = POKEMON_DB.find(pk => pk.id === id);
+    if (!p) return;
+    const maxStat = 160;
+    const ext = (typeof POKEMON_EXTENDED !== 'undefined' && POKEMON_EXTENDED[id]) || {};
+    const abilities = (typeof POKEMON_ABILITIES !== 'undefined' && POKEMON_ABILITIES[id]) || ext.abilities || [];
+    const container = document.getElementById('pokemon-detail-content');
+    container.innerHTML = `
+        <div class="text-center m-20-b">
+            <div class="pokedex-number fs-5">#${String(p.id).padStart(3,'0')}</div>
+            <img src="${spriteUrl(p.id)}" class="detail-sprite m-10-tb" alt="${p.name}">
+            <h3 class="fs-12 fw-800">${p.name}</h3>
+            <div class="m-10-t">
+                ${p.types.map(t => `<span class="type-badge type-${t}">${TYPE_NAMES[t]}</span>`).join(' ')}
+            </div>
+            <div class="fs-4 m-5-t rank-${p.rank} fw-600">Rank: ${p.rank.charAt(0).toUpperCase()+p.rank.slice(1)}</div>
+        </div>
+        ${ext.description ? `
+        <div class="m-15-b p-15-all border-rd-8" style="background:rgba(255,255,255,0.03);border:1px solid var(--pk-border);">
+            <p class="fs-5 opacity-7 lh-1-5">${ext.description}</p>
+        </div>
+        ` : ''}
+        ${abilities.length > 0 ? `
+        <div class="m-15-b">
+            <h4 class="fs-6 fw-700 m-10-b text-uppercase opacity-6">Habilidades</h4>
+            <div class="d-flex f-dir-column f-gap-6">
+                ${abilities.map(a => {
+                    const eff = (typeof ABILITY_EFFECTS !== 'undefined' && ABILITY_EFFECTS[a]) ? ABILITY_EFFECTS[a] : null;
+                    return `<div class="p-8-all border-rd-6" style="background:rgba(255,222,0,0.06);border:1px solid rgba(255,222,0,0.2);">
+                        <span class="fw-700 fs-5" style="color:var(--pk-yellow);">${a}</span>
+                        ${eff ? `<div class="fs-3 m-3-t opacity-7">${eff.desc}</div>` : ''}
+                    </div>`;
+                }).join('')}
+            </div>
+        </div>
+        ` : ''}
+        <div class="m-20-b">
+            <h4 class="fs-6 fw-700 m-10-b text-uppercase opacity-6">Stats Base</h4>
+            ${renderStatBar('HP', p.hp, maxStat, 'stat-hp')}
+            ${renderStatBar('Ataque', p.atk, maxStat, 'stat-atk')}
+            ${renderStatBar('Defesa', p.def, maxStat, 'stat-def')}
+            ${renderStatBar('Sp.Atk', p.spatk, maxStat, 'stat-spatk')}
+            ${renderStatBar('Sp.Def', p.spdef, maxStat, 'stat-spdef')}
+            ${renderStatBar('Veloc.', p.spd, maxStat, 'stat-spd')}
+        </div>
+        ${ext.height ? `
+        <div class="m-15-b d-flex f-gap-20 f-justify-center">
+            <div class="text-center"><div class="fs-3 opacity-5 text-uppercase">Altura</div><div class="fs-6 fw-700">${ext.height}m</div></div>
+            <div class="text-center"><div class="fs-3 opacity-5 text-uppercase">Peso</div><div class="fs-6 fw-700">${ext.weight}kg</div></div>
+            <div class="text-center"><div class="fs-3 opacity-5 text-uppercase">Captura</div><div class="fs-6 fw-700">${ext.captureRate}</div></div>
+        </div>
+        ` : ''}
+        <div>
+            <h4 class="fs-6 fw-700 m-10-b text-uppercase opacity-6">Movimentos</h4>
+            <table class="pk-table">
+                <tr><th>Nome</th><th>Tipo</th><th>Poder</th><th>Cat.</th></tr>
+                ${p.moves.map(m => `
+                    <tr>
+                        <td class="fw-600">${m.name}</td>
+                        <td><span class="type-badge type-${m.type}" style="font-size:9px;padding:2px 8px;">${TYPE_NAMES[m.type]}</span></td>
+                        <td>${m.power || '-'}</td>
+                        <td>${m.cat === 'physical' ? '💥' : m.cat === 'special' ? '✨' : '🎯'}</td>
+                    </tr>
+                `).join('')}
+            </table>
+        </div>
+    `;
+    // Open modal
+    const dialog = document.querySelector('[data-modal="pokemon-detail"]');
+    if (dialog && dialog._a11yDialog) dialog._a11yDialog.show();
+    else if (dialog) { try { new A11yDialog(dialog); dialog._a11yDialog.show(); } catch(e){} }
+}
+
+function renderStatBar(label, value, max, cls) {
+    const pct = Math.min((value / max) * 100, 100);
+    return `
+        <div class="d-flex f-items-center f-gap-10 m-5-b">
+            <span class="fs-4 fw-600 opacity-6" style="width:55px;">${label}</span>
+            <div class="f-grow-1 stat-bar-bg">
+                <div class="stat-bar-fill ${cls}" style="width:${pct}%"></div>
+            </div>
+            <span class="fs-4 fw-700" style="width:30px;text-align:right;">${value}</span>
+        </div>
+    `;
+}
+
+// ===========================
+// BATTLE SIMULATOR
+// ===========================
+let battleState = null;
+
+function populateBattleSelects() {
+    const s1 = document.getElementById('battle-pk1');
+    const s2 = document.getElementById('battle-pk2');
+    POKEMON_DB.forEach(p => {
+        const opt1 = new Option(`#${String(p.id).padStart(3,'0')} ${p.name}`, p.id);
+        const opt2 = new Option(`#${String(p.id).padStart(3,'0')} ${p.name}`, p.id);
+        s1.add(opt1);
+        s2.add(opt2);
+    });
+}
+
+function updateBattlePreview() {
+    [1,2].forEach(n => {
+        const sel = document.getElementById(`battle-pk${n}`);
+        const preview = document.getElementById(`battle-preview-${n}`);
+        const val = sel.value;
+        let p = null;
+
+        if (val.startsWith('team-')) {
+            const idx = parseInt(val.split('-')[1]);
+            p = playerTeam[idx];
+        } else {
+            const id = parseInt(val);
+            p = POKEMON_DB.find(pk => pk.id === id);
+        }
+
+        if (p) {
+            preview.classList.remove('d-none');
+            document.getElementById(`bp${n}-sprite`).src = spriteUrl(p.id);
+            document.getElementById(`bp${n}-name`).textContent = (p.nickname ? p.nickname + ' (' + p.name + ')' : p.name) + (p.level ? ' Lv.' + p.level : '');
+            const ab = typeof getAbilityEffect === 'function' ? getAbilityEffect(p.id) : null;
+            document.getElementById(`bp${n}-types`).innerHTML = p.types.map(t => `<span class="type-badge type-${t}" style="font-size:10px;padding:2px 8px;">${TYPE_NAMES[t]}</span>`).join(' ')
+                + (ab ? `<div class="fs-2 m-3-t" style="color:var(--pk-yellow);">⭐ ${ab.name}</div>` : '');
+        } else {
+            preview.classList.add('d-none');
+        }
+    });
+}
+
+function getTypeEffectiveness(atkType, defTypes) {
+    let mult = 1;
+    defTypes.forEach(dt => { mult *= EFF[atkType][dt]; });
+    return mult;
+}
+
+function startBattle() {
+    const val1 = document.getElementById('battle-pk1').value;
+    const val2 = document.getElementById('battle-pk2').value;
+    if (!val1 || !val2) { alert('Selecione dois Pokémon!'); return; }
+
+    let p1, p2;
+
+    // Suporte a Pokémon do time (value = "team-N")
+    if (val1.startsWith('team-')) {
+        const idx = parseInt(val1.split('-')[1]);
+        p1 = { ...playerTeam[idx], currentHp: playerTeam[idx].maxHp || playerTeam[idx].hp };
+    } else {
+        const lvl1 = parseInt(document.getElementById('battle-lvl1')?.value) || 5;
+        const nat1 = document.getElementById('battle-nat1')?.value || 'hardy';
+        p1 = createBattlePokemon(parseInt(val1), lvl1, nat1);
+    }
+
+    if (val2.startsWith('team-')) {
+        const idx = parseInt(val2.split('-')[1]);
+        p2 = { ...playerTeam[idx], currentHp: playerTeam[idx].maxHp || playerTeam[idx].hp };
+    } else {
+        const lvl2 = parseInt(document.getElementById('battle-lvl2')?.value) || 5;
+        const nat2 = document.getElementById('battle-nat2')?.value || 'hardy';
+        p2 = createBattlePokemon(parseInt(val2), lvl2, nat2);
+    }
+
+    if (!p1 || !p2) { alert('Erro ao criar Pokémon para batalha!'); return; }
+
+    p1.currentHp = p1.maxHp || p1.hp;
+    p2.currentHp = p2.maxHp || p2.hp;
+    p1.maxHp = p1.maxHp || p1.hp;
+    p2.maxHp = p2.maxHp || p2.hp;
+
+    // Aplicar bônus passivos de habilidade
+    [p1, p2].forEach(pk => {
+        pk._poisoned = false; pk._burned = false; pk._paralyzed = false; pk._asleep = false; pk._infatuated = false;
+        pk._flashFireActive = false; pk._sturdyUsed = false;
+        const ab = typeof getAbilityEffect === 'function' ? getAbilityEffect(pk.id) : null;
+        if (ab && ab.trigger === 'passive' && ab.stat && ab.mod && !ab.penalty) {
+            if (['atk','def','spatk','spdef','spd'].includes(ab.stat)) {
+                pk[ab.stat] += ab.mod;
+            }
+        }
+    });
+
+    battleState = {
+        p1: p1,
+        p2: p2,
+        turn: 0,
+        over: false
+    };
+
+    const arena = document.getElementById('battle-arena');
+    arena.classList.remove('d-none');
+
+    document.getElementById('arena-sprite-1').src = spriteUrl(p1.id);
+    document.getElementById('arena-sprite-2').src = spriteUrl(p2.id);
+    document.getElementById('arena-name-1').textContent = p1.name;
+    document.getElementById('arena-name-2').textContent = p2.name;
+    updateHpBars();
+
+    const lvlInfo1 = p1.level ? ` Lv.${p1.level}` : '';
+    const lvlInfo2 = p2.level ? ` Lv.${p2.level}` : '';
+    const ab1 = typeof getAbilityEffect === 'function' ? getAbilityEffect(p1.id) : null;
+    const ab2 = typeof getAbilityEffect === 'function' ? getAbilityEffect(p2.id) : null;
+
+    let abilityLog = '';
+    // Intimidate e outros on_entry
+    if (ab1 && ab1.trigger === 'on_entry' && ab1.stat && ab1.mod) {
+        p2[ab1.stat] = Math.max(1, p2[ab1.stat] + ab1.mod);
+        abilityLog += `<div class="log-entry log-info">😤 ${p1.name}: ${ab1.name} — ${ab1.desc}</div>`;
+    }
+    if (ab2 && ab2.trigger === 'on_entry' && ab2.stat && ab2.mod) {
+        p1[ab2.stat] = Math.max(1, p1[ab2.stat] + ab2.mod);
+        abilityLog += `<div class="log-entry log-info">😤 ${p2.name}: ${ab2.name} — ${ab2.desc}</div>`;
+    }
+
+    document.getElementById('battle-log').innerHTML = `
+        <div class="log-entry log-info">⚔️ ${p1.name}${lvlInfo1} vs ${p2.name}${lvlInfo2} — Batalha iniciada!</div>
+        <div class="log-entry log-info">HP: ${p1.name} (${p1.maxHp}) vs ${p2.name} (${p2.maxHp})</div>
+        <div class="log-entry log-info">Velocidade: ${p1.name} (${p1.spd}) vs ${p2.name} (${p2.spd})</div>
+        ${ab1 ? `<div class="log-entry log-info" style="color:var(--pk-yellow);">⭐ ${p1.name}: ${ab1.name} — ${ab1.desc}</div>` : ''}
+        ${ab2 ? `<div class="log-entry log-info" style="color:var(--pk-yellow);">⭐ ${p2.name}: ${ab2.name} — ${ab2.desc}</div>` : ''}
+        ${abilityLog}
+    `;
+
+    document.getElementById('btn-next-turn').classList.remove('d-none');
+    document.getElementById('btn-reset-battle').classList.add('d-none');
+
+    arena.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function updateHpBars() {
+    if (!battleState) return;
+    [1,2].forEach(n => {
+        const pk = n === 1 ? battleState.p1 : battleState.p2;
+        const pct = Math.max(0, (pk.currentHp / pk.maxHp) * 100);
+        const bar = document.getElementById(`arena-hp-${n}`);
+        bar.style.width = pct + '%';
+        bar.className = 'hp-bar-fill';
+        if (pct <= 25) bar.classList.add('critical');
+        else if (pct <= 50) bar.classList.add('low');
+        document.getElementById(`arena-hp-text-${n}`).textContent = `${Math.max(0, pk.currentHp)}/${pk.maxHp}`;
+    });
+}
+
+function nextBattleTurn() {
+    if (!battleState || battleState.over) return;
+    battleState.turn++;
+
+    const log = document.getElementById('battle-log');
+
+    // Determine order by speed
+    let first, second;
+    if (battleState.p1.spd >= battleState.p2.spd) {
+        first = { attacker: battleState.p1, defender: battleState.p2, n: 1 };
+        second = { attacker: battleState.p2, defender: battleState.p1, n: 2 };
+    } else {
+        first = { attacker: battleState.p2, defender: battleState.p1, n: 2 };
+        second = { attacker: battleState.p1, defender: battleState.p2, n: 1 };
+    }
+
+    log.innerHTML += `<div class="log-entry log-info" style="border-top:1px solid var(--pk-border);">--- Turno ${battleState.turn} ---</div>`;
+
+    // First attack
+    const result1 = executeTurn(first.attacker, first.defender);
+    log.innerHTML += result1.html;
+    updateHpBars();
+
+    if (first.defender.currentHp <= 0) {
+        endBattle(first.attacker, first.defender);
+        return;
+    }
+
+    // Second attack
+    const result2 = executeTurn(second.attacker, second.defender);
+    log.innerHTML += result2.html;
+    updateHpBars();
+
+    if (second.defender.currentHp <= 0) {
+        endBattle(second.attacker, second.defender);
+        return;
+    }
+
+    // Per-turn effects (poison, burn, Speed Boost, etc.)
+    if (typeof applyPerTurnEffects === 'function') {
+        [battleState.p1, battleState.p2].forEach(pk => {
+            if (pk.currentHp <= 0) return;
+            const effects = applyPerTurnEffects(pk);
+            effects.forEach(e => {
+                log.innerHTML += `<div class="log-entry" style="color:var(--pk-orange);font-size:12px;padding:4px 12px;">${e}</div>`;
+            });
+        });
+        updateHpBars();
+
+        // Check if per-turn effects KO'd someone
+        if (battleState.p1.currentHp <= 0) { endBattle(battleState.p2, battleState.p1); return; }
+        if (battleState.p2.currentHp <= 0) { endBattle(battleState.p1, battleState.p2); return; }
+    }
+
+    // Animate dice
+    const d1 = document.getElementById('battle-d1');
+    const d2 = document.getElementById('battle-d2');
+    animateDice(d1, result1.dice[0], 0);
+    animateDice(d2, result1.dice[1], 0);
+
+    log.scrollTop = log.scrollHeight;
+}
+
+function executeTurn(attacker, defender) {
+    let html = '';
+
+    // Check sleep/paralyze
+    if (attacker._asleep) {
+        const wakeRoll = Math.floor(Math.random() * 6) + 1;
+        if (wakeRoll <= 2) {
+            attacker._asleep = false;
+            html += `<div class="log-entry log-info">💤 ${attacker.name} acordou! [1d6: ${wakeRoll}]</div>`;
+        } else {
+            return { html: `<div class="log-entry log-info">💤 ${attacker.name} está dormindo... [1d6: ${wakeRoll}]</div>`, dice: [0, 0] };
+        }
+    }
+    if (attacker._infatuated) {
+        const roll = Math.floor(Math.random() * 6) + 1;
+        if (roll <= 3) {
+            return { html: `<div class="log-entry log-info">💕 ${attacker.name} está apaixonado e não conseguiu atacar! [1d6: ${roll}]</div>`, dice: [0, 0] };
+        }
+    }
+
+    // Pick random move (prioritize moves with power > 0)
+    const movesWithPower = attacker.moves.filter(m => m.power > 0);
+    const move = movesWithPower[Math.floor(Math.random() * movesWithPower.length)] || attacker.moves[0];
+
+    const d1 = rollDice();
+    const d2 = rollDice();
+    let diceSum = d1 + d2;
+
+    // Ability accuracy modifiers
+    let accMod = 0;
+    const atkAbility = typeof getAbilityEffect === 'function' ? getAbilityEffect(attacker.id) : null;
+    const defAbility = typeof getAbilityEffect === 'function' ? getAbilityEffect(defender.id) : null;
+    if (atkAbility && atkAbility.trigger === 'passive' && atkAbility.stat === 'accuracy') accMod += atkAbility.mod;
+    if (atkAbility && atkAbility.penalty === 'accuracy') accMod += atkAbility.penaltyVal;
+    if (defAbility && defAbility.trigger === 'passive' && defAbility.stat === 'evasion') accMod -= defAbility.mod;
+
+    // Snake eyes = miss
+    if (diceSum === 2) {
+        return {
+            html: html + `<div class="log-entry log-info">${attacker.name} usa <strong>${move.name}</strong>... 🎲 [${d1}+${d2}] = <span class="log-damage">ERRO CRÍTICO! Ataque errou!</span></div>`,
+            dice: [d1, d2]
+        };
+    }
+
+    const isCritical = d1 === d2;
+    const atkStat = move.cat === 'physical' ? attacker.atk : attacker.spatk;
+    const defStat = move.cat === 'physical' ? defender.def : defender.spdef;
+    let typeEff = getTypeEffectiveness(move.type, defender.types);
+
+    // Tinted Lens: resists become neutral
+    if (atkAbility && atkAbility.trigger === 'resist_boost' && typeEff > 0 && typeEff < 1) {
+        typeEff = 1;
+    }
+
+    // Filter/Solid Rock: super effective reduced
+    if (defAbility && defAbility.trigger === 'defense' && defAbility.types && defAbility.types.includes('super_effective') && typeEff > 1) {
+        typeEff = typeEff * defAbility.mult;
+    }
+
+    let rawDamage = (diceSum + accMod + Math.floor(atkStat / 10) + move.power) - Math.floor(defStat / 10);
+    if (typeEff === 0) rawDamage = 0;
+    else rawDamage = Math.max(1, rawDamage);
+
+    rawDamage = Math.round(rawDamage * typeEff);
+    if (isCritical && typeEff > 0) rawDamage = Math.ceil(rawDamage * 1.5);
+
+    // Apply ability effects
+    let abilityLog = [];
+    if (typeof applyAbilityOnAttack === 'function') {
+        const abResult = applyAbilityOnAttack(attacker, defender, move, rawDamage, isCritical);
+        if (abResult.blocked) {
+            if (abResult.healDefender > 0) {
+                defender.currentHp = Math.min(defender.maxHp, defender.currentHp + abResult.healDefender);
+            }
+            const abLogHtml = abResult.log.map(l => `<div class="log-entry" style="color:var(--pk-yellow);font-size:12px;padding:4px 12px;">${l}</div>`).join('');
+            return {
+                html: html + `<div class="log-entry">${attacker.name} usa <strong>${move.name}</strong> 🎲 [${d1}+${d2}] → <span style="color:#666;">Bloqueado!</span></div>${abLogHtml}`,
+                dice: [d1, d2]
+            };
+        }
+        rawDamage = abResult.damage;
+        abilityLog = abResult.log;
+        if (abResult.healDefender > 0) {
+            defender.currentHp = Math.min(defender.maxHp, defender.currentHp + abResult.healDefender);
+        }
+    }
+
+    defender.currentHp -= rawDamage;
+    if (defender.currentHp < 0) defender.currentHp = 0;
+
+    // Contact ability effects (Static, Flame Body, etc.)
+    let contactHtml = '';
+    if (typeof applyContactEffect === 'function' && move.cat === 'physical') {
+        const contactResult = applyContactEffect(attacker, defender, move);
+        if (contactResult) {
+            contactHtml = `<div class="log-entry" style="color:var(--pk-orange);font-size:12px;padding:4px 12px;">${contactResult}</div>`;
+        }
+    }
+
+    let effText = '';
+    if (typeEff >= 2) effText = ` <span style="color:#4CAF50;">Super efetivo!${typeEff >= 4 ? ' (x4)' : ''}</span>`;
+    else if (typeEff > 0 && typeEff < 1) effText = ` <span style="color:#FF9800;">Não muito efetivo${typeEff <= 0.25 ? ' (x0.25)' : ''}...</span>`;
+    else if (typeEff === 0) effText = ' <span style="color:#666;">Sem efeito!</span>';
+
+    let critText = isCritical && typeEff > 0 ? ' <span class="log-critical">CRÍTICO!</span>' : '';
+    const abLogHtml = abilityLog.map(l => `<div class="log-entry" style="color:var(--pk-yellow);font-size:12px;padding:4px 12px;">${l}</div>`).join('');
+
+    return {
+        html: html + `<div class="log-entry">${attacker.name} usa <strong>${move.name}</strong> 🎲 [${d1}+${d2}]${critText} → <span class="log-damage">${rawDamage} dano</span>${effText}</div>${abLogHtml}${contactHtml}`,
+        dice: [d1, d2]
+    };
+}
+
+function endBattle(winner, loser) {
+    battleState.over = true;
+    const log = document.getElementById('battle-log');
+    log.innerHTML += `
+        <div class="log-entry" style="padding:12px;background:rgba(255,222,0,0.05);border-top:2px solid var(--pk-gold);">
+            🏆 <strong>${loser.name}</strong> foi derrotado! <strong>${winner.name}</strong> venceu a batalha!
+            <br><span class="fs-3 opacity-5">+${winner.rank === 'legendary' ? '5' : '3'} XP ganhos</span>
+        </div>
+    `;
+    log.scrollTop = log.scrollHeight;
+    document.getElementById('btn-next-turn').classList.add('d-none');
+    document.getElementById('btn-reset-battle').classList.remove('d-none');
+}
+
+function resetBattle() {
+    battleState = null;
+    document.getElementById('battle-arena').classList.add('d-none');
+}
+
+// ===========================
+// TYPE CALCULATOR
+// ===========================
+function populateTypeSelects() {
+    const s1 = document.getElementById('calc-atk-type');
+    const s2 = document.getElementById('calc-def-type');
+    TYPES.forEach(t => {
+        s1.add(new Option(TYPE_NAMES[t], t));
+        s2.add(new Option(TYPE_NAMES[t], t));
+    });
+}
+
+function calcTypeEffect() {
+    const atk = document.getElementById('calc-atk-type').value;
+    const def = document.getElementById('calc-def-type').value;
+    const result = document.getElementById('calc-result');
+    const text = document.getElementById('calc-result-text');
+
+    if (!atk || !def) { result.textContent = '-'; text.textContent = 'Selecione ambos os tipos'; return; }
+
+    const eff = EFF[atk][def];
+    if (eff === 2) { result.textContent = '×2'; result.style.color = '#4CAF50'; text.textContent = 'Super Efetivo!'; }
+    else if (eff === 0.5) { result.textContent = '×0.5'; result.style.color = '#FF9800'; text.textContent = 'Não Muito Efetivo'; }
+    else if (eff === 0) { result.textContent = '×0'; result.style.color = '#F44336'; text.textContent = 'Sem Efeito (Imune)'; }
+    else { result.textContent = '×1'; result.style.color = 'var(--pk-text)'; text.textContent = 'Dano Normal'; }
+}
+
+// ===========================
+// FULL TYPE CHART
+// ===========================
+function renderTypeChart() {
+    const container = document.getElementById('type-chart-container');
+    let html = '<table style="border-collapse:collapse;width:100%;"><thead><tr><th style="width:70px;"></th>';
+
+    TYPES.forEach(t => {
+        html += `<th class="type-header"><span class="type-badge type-${t}" style="font-size:8px;padding:2px 4px;">${TYPE_NAMES[t].substring(0,3)}</span></th>`;
+    });
+    html += '</tr></thead><tbody>';
+
+    TYPES.forEach(atk => {
+        html += `<tr><td class="type-row-label"><span class="type-badge type-${atk}" style="font-size:9px;padding:2px 6px;">${TYPE_NAMES[atk]}</span></td>`;
+        TYPES.forEach(def => {
+            const eff = EFF[atk][def];
+            let cls = 'neutral', txt = '';
+            if (eff === 2) { cls = 'super'; txt = '2'; }
+            else if (eff === 0.5) { cls = 'not-very'; txt = '½'; }
+            else if (eff === 0) { cls = 'immune'; txt = '0'; }
+            html += `<td style="padding:2px;"><div class="type-cell ${cls}" aria-label="${TYPE_NAMES[atk]} vs ${TYPE_NAMES[def]}: x${eff}">${txt}</div></td>`;
+        });
+        html += '</tr>';
+    });
+
+    html += '</tbody></table>';
+    html += '<div class="d-flex f-gap-15 f-justify-center m-15-t"><span class="d-flex f-items-center f-gap-5"><span class="type-cell super" style="width:20px;height:20px;font-size:9px;">2</span> <span class="fs-3 opacity-6">Super Efetivo</span></span><span class="d-flex f-items-center f-gap-5"><span class="type-cell not-very" style="width:20px;height:20px;font-size:9px;">½</span> <span class="fs-3 opacity-6">Não Muito Efetivo</span></span><span class="d-flex f-items-center f-gap-5"><span class="type-cell immune" style="width:20px;height:20px;font-size:9px;">0</span> <span class="fs-3 opacity-6">Imune</span></span></div>';
+    container.innerHTML = html;
+}
+
+// ===========================
+// QUICK DICE ROLLER
+// ===========================
+function quickRoll(mode) {
+    if (mode === 1) {
+        const d = rollDice();
+        animateDice(document.getElementById('quick-d1'), d, 0);
+    } else if (mode === 2) {
+        const d1 = rollDice(), d2 = rollDice();
+        animateDice(document.getElementById('quick-d2a'), d1, 0);
+        animateDice(document.getElementById('quick-d2b'), d2, 2);
+        setTimeout(() => {
+            const total = d1 + d2;
+            document.getElementById('quick-d2-total').textContent = `= ${total}`;
+            document.getElementById('quick-d2-total').style.color = d1 === d2 ? 'var(--pk-yellow)' : 'var(--pk-text)';
+        }, 800);
+    } else if (mode === 3) {
+        const d1 = rollDice(), d2 = rollDice();
+        const mod = parseInt(document.getElementById('quick-mod').value) || 0;
+        animateDice(document.getElementById('quick-d3a'), d1, 0);
+        animateDice(document.getElementById('quick-d3b'), d2, 2);
+        setTimeout(() => {
+            const total = d1 + d2 + mod;
+            document.getElementById('quick-d3-total').textContent = `= ${total}`;
+            const isCrit = d1 === d2;
+            const isSnake = d1 === 1 && d2 === 1;
+            if (isSnake) {
+                document.getElementById('quick-d3-total').style.color = 'var(--pk-red)';
+                document.getElementById('quick-d3-total').textContent += ' (FALHA!)';
+            } else if (isCrit) {
+                document.getElementById('quick-d3-total').style.color = 'var(--pk-yellow)';
+                document.getElementById('quick-d3-total').textContent += ' (CRÍTICO!)';
+            } else {
+                document.getElementById('quick-d3-total').style.color = 'var(--pk-text)';
+            }
+        }, 800);
+    }
+}
+
+// ===========================
+// MEU TIME - TEAM MANAGEMENT
+// ===========================
+let playerTeam = [];
+
+function loadTeamFromStorage() {
+    try {
+        const saved = localStorage.getItem('pokemonTeam');
+        if (saved) {
+            playerTeam = JSON.parse(saved);
+            renderTeamList();
+        }
+    } catch (e) {
+        console.warn('Erro ao carregar time salvo:', e);
+        playerTeam = [];
+        localStorage.removeItem('pokemonTeam');
+    }
+}
+
+function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+function saveTeamToStorage() {
+    localStorage.setItem('pokemonTeam', JSON.stringify(playerTeam));
+}
+
+function populateTeamPokemonSelect() {
+    const select = document.getElementById('team-pokemon-select');
+    select.innerHTML = '<option value="">Selecione um Pokémon...</option>';
+
+    POKEMON_DB.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.id;
+        opt.textContent = `#${String(p.id).padStart(3,'0')} ${p.name} (${p.rank})`;
+        select.appendChild(opt);
+    });
+}
+
+function previewTeamPokemon() {
+    const pokemonId = parseInt(document.getElementById('team-pokemon-select').value);
+    const level = parseInt(document.getElementById('team-level').value) || 5;
+    const nature = document.getElementById('team-nature').value;
+
+    if (!pokemonId) {
+        alert('Selecione um Pokémon primeiro!');
+        return;
+    }
+
+    const pokemon = createBattlePokemon(pokemonId, level, nature);
+    if (!pokemon) return;
+
+    const preview = document.getElementById('team-preview');
+    preview.classList.remove('d-none');
+
+    document.getElementById('team-preview-sprite').src = spriteUrl(pokemon.id);
+    document.getElementById('team-preview-name').textContent = pokemon.name;
+    document.getElementById('team-preview-types').innerHTML = pokemon.types.map(t =>
+        `<span class="type-badge type-${t}">${TYPE_NAMES[t]}</span>`
+    ).join(' ');
+    document.getElementById('team-preview-stats').textContent =
+        `HP: ${pokemon.hp} | ATK: ${pokemon.atk} | DEF: ${pokemon.def} | SPATK: ${pokemon.spatk} | SPDEF: ${pokemon.spdef} | SPD: ${pokemon.spd}`;
+    document.getElementById('team-preview-nature').textContent =
+        `Level ${level} • ${NATURES[nature].name} Nature`;
+
+    // Show available moves
+    const movesContainer = document.getElementById('team-moves-container');
+    movesContainer.classList.remove('d-none');
+
+    const movesList = document.getElementById('team-moves-list');
+    movesList.innerHTML = pokemon.moves.map((m, i) => `
+        <div class="p-10-all border-b" style="border-color: var(--pk-border);">
+            <div class="d-flex f-items-center f-justify-between">
+                <div>
+                    <span class="fw-600">${m.name}</span>
+                    <span class="type-badge type-${m.type} m-5-l">${TYPE_NAMES[m.type]}</span>
+                </div>
+                <div class="fs-5 opacity-6">
+                    ${m.cat === 'physical' ? '⚔️' : m.cat === 'special' ? '✨' : '🎯'}
+                    Poder: ${m.power || '-'}
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function addToTeam() {
+    if (playerTeam.length >= 6) {
+        alert('Seu time já está completo! (Máximo 6 Pokémon)');
+        return;
+    }
+
+    const pokemonId = parseInt(document.getElementById('team-pokemon-select').value);
+    const level = parseInt(document.getElementById('team-level').value) || 5;
+    const nature = document.getElementById('team-nature').value;
+    const nickname = document.getElementById('team-nickname').value.trim();
+
+    if (!pokemonId) {
+        alert('Selecione um Pokémon primeiro!');
+        return;
+    }
+
+    const pokemon = createBattlePokemon(pokemonId, level, nature);
+    if (!pokemon) return;
+
+    if (nickname) {
+        pokemon.nickname = nickname;
+    }
+
+    pokemon.uid = Date.now() + Math.random(); // Unique ID
+
+    playerTeam.push(pokemon);
+    saveTeamToStorage();
+    renderTeamList();
+
+    // Reset form
+    document.getElementById('team-pokemon-select').value = '';
+    document.getElementById('team-level').value = 5;
+    document.getElementById('team-nature').value = 'hardy';
+    document.getElementById('team-nickname').value = '';
+    document.getElementById('team-preview').classList.add('d-none');
+    document.getElementById('team-moves-container').classList.add('d-none');
+
+    alert(`${pokemon.nickname || pokemon.name} foi adicionado ao time!`);
+}
+
+function renderTeamList() {
+    const empty = document.getElementById('team-empty');
+    const list = document.getElementById('team-list');
+    const count = document.getElementById('team-count');
+
+    count.textContent = `(${playerTeam.length}/6)`;
+
+    if (playerTeam.length === 0) {
+        empty.classList.remove('d-none');
+        list.classList.add('d-none');
+        return;
+    }
+
+    empty.classList.add('d-none');
+    list.classList.remove('d-none');
+
+    list.innerHTML = playerTeam.map((p, index) => `
+        <div class="pk-card p-20-all m-10-b">
+            <div class="d-flex f-gap-15">
+                <img src="${spriteUrl(p.id)}" style="width:80px;height:80px;image-rendering:pixelated;">
+                <div class="flex-1">
+                    <div class="d-flex f-items-center f-justify-between m-5-b">
+                        <div>
+                            <span class="fs-8 fw-700">${escapeHtml(p.nickname || p.name)}</span>
+                            ${p.nickname ? `<span class="fs-5 opacity-5 m-5-l">(${escapeHtml(p.name)})</span>` : ''}
+                        </div>
+                        <div class="d-flex f-gap-5">
+                            <button class="btn-pk btn-outline btn-sm" onclick="removePokemonFromTeam(${index})" title="Remover">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+                    <div class="m-5-b">
+                        ${p.types.map(t => `<span class="type-badge type-${t}">${TYPE_NAMES[t]}</span>`).join(' ')}
+                        <span class="fs-5 opacity-5 m-10-l">Lv. ${p.level}</span>
+                        <span class="fs-5 opacity-5 m-5-l">• ${NATURES[p.nature].name}</span>
+                    </div>
+                    <div class="fs-5 opacity-6 m-5-b">
+                        HP: ${p.maxHp} | ATK: ${p.atk} | DEF: ${p.def} | SPD: ${p.spd}
+                    </div>
+                    <div class="fs-4 opacity-5">
+                        Moves: ${p.moves.map(m => m.name).join(', ')}
+                    </div>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function removePokemonFromTeam(index) {
+    if (confirm('Remover este Pokémon do time?')) {
+        playerTeam.splice(index, 1);
+        saveTeamToStorage();
+        renderTeamList();
+    }
+}
+
+function clearTeam() {
+    if (confirm('Remover TODOS os Pokémon do time? Esta ação não pode ser desfeita!')) {
+        playerTeam = [];
+        saveTeamToStorage();
+        renderTeamList();
+    }
+}
+
+function useTeamInBattle() {
+    if (playerTeam.length === 0) {
+        alert('Seu time está vazio! Adicione Pokémon primeiro.');
+        return;
+    }
+
+    document.getElementById('batalha').scrollIntoView({ behavior: 'smooth' });
+
+    const select1 = document.getElementById('battle-pk1');
+    const select2 = document.getElementById('battle-pk2');
+
+    const teamOptions = '<optgroup label="--- Meu Time ---">' +
+        playerTeam.map((p, i) =>
+            `<option value="team-${i}">${escapeHtml(p.nickname || p.name)} (Lv.${p.level} ${NATURES[p.nature]?.name || ''})</option>`
+        ).join('') +
+        '</optgroup>';
+
+    const dbOptions = '<optgroup label="--- Pokédex ---">' +
+        POKEMON_DB.map(p =>
+            `<option value="${p.id}">#${String(p.id).padStart(3,'0')} ${p.name}</option>`
+        ).join('') +
+        '</optgroup>';
+
+    select1.innerHTML = '<option value="">Selecione...</option>' + teamOptions + dbOptions;
+    select2.innerHTML = '<option value="">Selecione...</option>' + teamOptions + dbOptions;
+
+    // Esconder level/nature inputs quando usando time (já estão definidos)
+    const lvlNatContainers = document.querySelectorAll('#battle-lvl1, #battle-nat1, #battle-lvl2, #battle-nat2');
+    lvlNatContainers.forEach(el => el.closest('.row')?.classList.remove('d-none'));
+
+    alert('Seu time foi carregado no simulador de batalha! Escolha Pokémon do time ou da Pokédex.');
+}
+
+function exportTeam() {
+    if (playerTeam.length === 0) {
+        alert('Seu time está vazio!');
+        return;
+    }
+
+    const data = JSON.stringify(playerTeam, null, 2);
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'meu-time-pokemon.json';
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+// ===========================
+// INIT
+// ===========================
+document.addEventListener('DOMContentLoaded', () => {
+    renderPokedex();
+    populateBattleSelects();
+    populateTypeSelects();
+    renderTypeChart();
+    populateTeamPokemonSelect();
+    loadTeamFromStorage();
+});
+</script>
+</body>
+</html>

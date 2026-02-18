@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokédex Completa — 151 Pokémon Gen 1 | Pokémon Legends RPG</title>
+    <link rel="stylesheet" href="https://cdn.squeleton.dev/squeleton.v4.min.css">
+    <script src="https://cdn.squeleton.dev/squeleton-main.v4.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --pk-red: #DC0A2D;
+            --pk-red-dark: #A00020;
+            --pk-blue: #3B4CCA;
+            --pk-yellow: #FFDE00;
+            --pk-gold: #B3A125;
+            --pk-dark: #0a0a0f;
+            --pk-darker: #06060a;
+            --pk-card: #12121a;
+            --pk-card-hover: #1a1a28;
+            --pk-border: #2a2a3a;
+            --pk-text: #e0e0e8;
+            --pk-text-dim: #8888aa;
+            --pk-green: #4CAF50;
+        }
+        * { margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: var(--pk-darker); color: var(--pk-text); }
+        .pixel-font { font-family: 'Press Start 2P', monospace; }
+        .logo-text {
+            background: linear-gradient(135deg, var(--pk-yellow), var(--pk-gold));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: rgba(10,10,15,0.95); backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--pk-border);
+            position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;
+        }
+        .navbar a { color: var(--pk-text-dim); text-decoration: none; font-size: 13px; font-weight: 500; letter-spacing: 0.5px; text-transform: uppercase; transition: color 0.3s; }
+        .navbar a:hover { color: var(--pk-yellow); }
+        .navbar a.active { color: var(--pk-yellow); }
+
+        /* Type Badges */
+        .type-badge { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #fff; }
+        .type-normal { background: #A8A878; } .type-fire { background: #F08030; } .type-water { background: #6890F0; }
+        .type-grass { background: #78C850; } .type-electric { background: #F8D030; color: #333; } .type-ice { background: #98D8D8; color: #333; }
+        .type-fighting { background: #C03028; } .type-poison { background: #A040A0; } .type-ground { background: #E0C068; color: #333; }
+        .type-flying { background: #A890F0; } .type-psychic { background: #F85888; } .type-bug { background: #A8B820; color: #333; }
+        .type-rock { background: #B8A038; } .type-ghost { background: #705898; } .type-dragon { background: #7038F8; }
+        .type-dark { background: #705848; } .type-steel { background: #B8B8D0; color: #333; } .type-fairy { background: #EE99AC; color: #333; }
+
+        /* Pokemon Card */
+        .pokemon-card {
+            background: var(--pk-card); border: 1px solid var(--pk-border); border-radius: 12px;
+            padding: 20px; cursor: pointer; transition: all 0.3s; overflow: hidden;
+        }
+        .pokemon-card:hover { transform: translateY(-4px); border-color: rgba(220,10,45,0.3); box-shadow: 0 8px 30px rgba(0,0,0,0.3); background: var(--pk-card-hover); }
+        .pokemon-number { font-size: 11px; font-weight: 700; color: #555; }
+        .pokemon-sprite { width: 96px; height: 96px; image-rendering: pixelated; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3)); }
+
+        /* Ranks */
+        .rank-common { color: #A8A8A8; } .rank-uncommon { color: #4CAF50; } .rank-rare { color: #2196F3; } .rank-legendary { color: var(--pk-yellow); }
+
+        /* Stat Bars */
+        .stat-bar-bg { background: rgba(255,255,255,0.06); border-radius: 4px; height: 10px; overflow: hidden; }
+        .stat-bar-fill { height: 100%; border-radius: 4px; transition: width 0.8s ease; }
+        .stat-hp { background: linear-gradient(90deg, #4CAF50, #66BB6A); }
+        .stat-atk { background: linear-gradient(90deg, #F44336, #EF5350); }
+        .stat-def { background: linear-gradient(90deg, #FF9800, #FFA726); }
+        .stat-spatk { background: linear-gradient(90deg, #2196F3, #42A5F5); }
+        .stat-spdef { background: linear-gradient(90deg, #9C27B0, #AB47BC); }
+        .stat-spd { background: linear-gradient(90deg, #E91E63, #EC407A); }
+
+        /* Filter tabs */
+        .filter-tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+        .filter-btn {
+            padding: 8px 16px; border-radius: 20px; border: 1px solid var(--pk-border);
+            background: transparent; color: var(--pk-text-dim); cursor: pointer; font-size: 12px;
+            font-weight: 600; transition: all 0.3s; font-family: 'Inter', sans-serif;
+        }
+        .filter-btn:hover { border-color: var(--pk-red); color: var(--pk-text); }
+        .filter-btn.active { background: var(--pk-red); border-color: var(--pk-red); color: #fff; }
+
+        /* Search */
+        .search-input {
+            width: 100%; padding: 14px 20px; border-radius: 10px; border: 1px solid var(--pk-border);
+            background: var(--pk-card); color: var(--pk-text); font-size: 15px; font-family: 'Inter', sans-serif;
+            transition: border-color 0.3s;
+        }
+        .search-input:focus { outline: none; border-color: var(--pk-red); }
+        .search-input::placeholder { color: var(--pk-text-dim); }
+
+        /* Detail Modal */
+        .detail-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 2000; justify-content: center; align-items: center; padding: 20px;
+        }
+        .detail-overlay.open { display: flex; }
+        .detail-panel {
+            background: var(--pk-card); border: 1px solid var(--pk-border); border-radius: 16px;
+            max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 30px;
+        }
+        .detail-close {
+            position: absolute; top: 15px; right: 20px; background: none; border: none;
+            color: var(--pk-text-dim); font-size: 24px; cursor: pointer;
+        }
+
+        /* Ability badge */
+        .ability-badge {
+            display: inline-block; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 600;
+            background: rgba(255,222,0,0.1); border: 1px solid rgba(255,222,0,0.25); color: var(--pk-yellow);
+        }
+
+        /* Counters */
+        .counter { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 8px; background: rgba(255,255,255,0.04); font-size: 12px; color: var(--pk-text-dim); }
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+    <div class="container">
+        <div class="d-flex f-items-center f-justify-between p-12-tb">
+            <a href="index.html" class="d-flex f-items-center f-gap-10">
+                <span class="pixel-font fs-3 logo-text">PKM</span>
+                <span class="fw-700 fs-5">Legends RPG</span>
+            </a>
+            <div class="d-flex f-gap-20 xs-d-none">
+                <a href="index.html#sistema">Sistema</a>
+                <a href="index.html#treinador">Treinador</a>
+                <a href="index.html#pokedex">Pokédex</a>
+                <a href="pokedex.html" class="active">Pokédex Completa</a>
+                <a href="index.html#meu-time">Meu Time</a>
+                <a href="index.html#batalha">Batalha</a>
+            </div>
+            <a href="index.html" class="fw-600 fs-4" style="color:var(--pk-yellow);">← Voltar ao Jogo</a>
+        </div>
+    </div>
+</nav>
+
+<!-- HEADER -->
+<section class="p-40-tb" style="padding-top:100px;background:radial-gradient(ellipse at 50% 0%,rgba(220,10,45,0.12) 0%,transparent 60%),var(--pk-darker);">
+    <div class="container text-center">
+        <h1 class="fs-14 xs-fs-11 fw-900 m-15-b">Pokédex Completa</h1>
+        <p class="fs-8 opacity-6 m-20-b">Todos os 151 Pokémon da Gen I com stats, habilidades e detalhes</p>
+
+        <div class="d-flex f-justify-center f-gap-15 m-20-b">
+            <div class="counter" id="counter-total">151 Pokémon</div>
+            <div class="counter" id="counter-showing">Mostrando: 151</div>
+        </div>
+
+        <input type="text" id="search" class="search-input m-20-b" placeholder="Buscar por nome, número ou tipo...">
+
+        <div class="filter-tabs f-justify-center">
+            <button class="filter-btn active" onclick="filterBy('all', this)">Todos</button>
+            <button class="filter-btn" onclick="filterBy('fire', this)">Fogo</button>
+            <button class="filter-btn" onclick="filterBy('water', this)">Água</button>
+            <button class="filter-btn" onclick="filterBy('grass', this)">Planta</button>
+            <button class="filter-btn" onclick="filterBy('electric', this)">Elétrico</button>
+            <button class="filter-btn" onclick="filterBy('psychic', this)">Psíquico</button>
+            <button class="filter-btn" onclick="filterBy('dragon', this)">Dragão</button>
+            <button class="filter-btn" onclick="filterBy('fighting', this)">Lutador</button>
+            <button class="filter-btn" onclick="filterBy('ghost', this)">Fantasma</button>
+            <button class="filter-btn" onclick="filterBy('ice', this)">Gelo</button>
+            <button class="filter-btn" onclick="filterBy('poison', this)">Veneno</button>
+            <button class="filter-btn" onclick="filterBy('ground', this)">Terra</button>
+            <button class="filter-btn" onclick="filterBy('flying', this)">Voador</button>
+            <button class="filter-btn" onclick="filterBy('bug', this)">Inseto</button>
+            <button class="filter-btn" onclick="filterBy('rock', this)">Pedra</button>
+            <button class="filter-btn" onclick="filterBy('normal', this)">Normal</button>
+            <button class="filter-btn" onclick="filterBy('fairy', this)">Fada</button>
+            <button class="filter-btn" onclick="filterBy('steel', this)">Aço</button>
+            <button class="filter-btn" onclick="filterBy('dark', this)">Sombrio</button>
+        </div>
+    </div>
+</section>
+
+<!-- GRID -->
+<section class="p-30-tb">
+    <div class="container">
+        <div class="row gap-15" id="pokedex-grid"></div>
+    </div>
+</section>
+
+<!-- DETAIL MODAL -->
+<div class="detail-overlay" id="detail-overlay" onclick="if(event.target===this)closeDetail()">
+    <div class="detail-panel" style="position:relative;">
+        <button class="detail-close" onclick="closeDetail()">&times;</button>
+        <div id="detail-content"></div>
+    </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="p-40-tb border-t" style="border-color:var(--pk-border);">
+    <div class="container text-center">
+        <p class="fs-4 opacity-3">Pokémon Legends RPG — Projeto educacional fan-made</p>
+        <div class="m-10-t">
+            <a href="index.html" class="fs-4 opacity-5" style="color:var(--pk-text);text-decoration:none;">Voltar ao Jogo</a>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.squeleton.dev/squeleton-scripts.v4.min.js"></script>
+<script src="pokemon-db.js"></script>
+<script src="pokemon-mechanics.js"></script>
+<script src="pokemon-data-extended.js"></script>
+<script>
+const TYPE_NAMES = {
+    normal:"Normal", fire:"Fogo", water:"Água", grass:"Planta", electric:"Elétrico",
+    ice:"Gelo", fighting:"Lutador", poison:"Veneno", ground:"Terra", flying:"Voador",
+    psychic:"Psíquico", bug:"Inseto", rock:"Pedra", ghost:"Fantasma", dragon:"Dragão",
+    dark:"Sombrio", steel:"Aço", fairy:"Fada"
+};
+
+let currentFilter = 'all';
+let currentSearch = '';
+
+function getAbilities(id) {
+    if (typeof POKEMON_ABILITIES !== 'undefined' && POKEMON_ABILITIES[id]) return POKEMON_ABILITIES[id];
+    if (typeof POKEMON_EXTENDED !== 'undefined' && POKEMON_EXTENDED[id]?.abilities) return POKEMON_EXTENDED[id].abilities;
+    return [];
+}
+
+function renderPokedex() {
+    const grid = document.getElementById('pokedex-grid');
+    let filtered = POKEMON_DB;
+
+    if (currentFilter !== 'all') {
+        filtered = filtered.filter(p => p.types.includes(currentFilter));
+    }
+
+    if (currentSearch) {
+        const s = currentSearch.toLowerCase();
+        filtered = filtered.filter(p =>
+            p.name.toLowerCase().includes(s) ||
+            String(p.id).includes(s) ||
+            p.types.some(t => TYPE_NAMES[t]?.toLowerCase().includes(s))
+        );
+    }
+
+    document.getElementById('counter-showing').textContent = `Mostrando: ${filtered.length}`;
+
+    grid.innerHTML = filtered.map(p => {
+        const abilities = getAbilities(p.id);
+        return `
+            <div class="c-xs-6 c-sm-4 c-md-3 c-lg-2">
+                <div class="pokemon-card text-center" onclick="showDetail(${p.id})">
+                    <div class="pokemon-number">#${String(p.id).padStart(3,'0')}</div>
+                    <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png"
+                         class="pokemon-sprite m-5-tb" alt="${p.name}" loading="lazy">
+                    <div class="fs-6 fw-700">${p.name}</div>
+                    <div class="m-5-t">
+                        ${p.types.map(t => `<span class="type-badge type-${t}" style="font-size:10px;padding:3px 8px;">${TYPE_NAMES[t]}</span>`).join(' ')}
+                    </div>
+                    <div class="fs-2 m-5-t rank-${p.rank} fw-600">${p.rank.charAt(0).toUpperCase()+p.rank.slice(1)}</div>
+                    ${abilities.length > 0 ? `
+                        <div class="m-8-t fs-2" style="color:var(--pk-text-dim);">
+                            ${abilities.slice(0,2).join(' / ')}
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function filterBy(type, btn) {
+    currentFilter = type;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderPokedex();
+}
+
+function renderStatBar(label, value, max, cls) {
+    const pct = Math.min((value / max) * 100, 100);
+    return `
+        <div class="d-flex f-items-center f-gap-10 m-5-b">
+            <span class="fs-4 fw-600 opacity-6" style="width:55px;">${label}</span>
+            <div class="f-grow-1 stat-bar-bg">
+                <div class="stat-bar-fill ${cls}" style="width:${pct}%"></div>
+            </div>
+            <span class="fs-4 fw-700" style="width:30px;text-align:right;">${value}</span>
+        </div>
+    `;
+}
+
+function showDetail(id) {
+    const p = POKEMON_DB.find(pk => pk.id === id);
+    if (!p) return;
+
+    const ext = POKEMON_EXTENDED[id] || {};
+    const abilities = getAbilities(id);
+    const maxStat = 160;
+    const content = document.getElementById('detail-content');
+
+    content.innerHTML = `
+        <div class="text-center m-20-b">
+            <div class="pokemon-number fs-5">#${String(p.id).padStart(3,'0')}</div>
+            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png"
+                 style="width:160px;height:160px;image-rendering:pixelated;filter:drop-shadow(0 4px 20px rgba(0,0,0,0.5));" alt="${p.name}">
+            <h3 class="fs-12 fw-800">${p.name}</h3>
+            <div class="m-10-t">
+                ${p.types.map(t => `<span class="type-badge type-${t}">${TYPE_NAMES[t]}</span>`).join(' ')}
+            </div>
+            <div class="fs-4 m-5-t rank-${p.rank} fw-600">Rank: ${p.rank.charAt(0).toUpperCase()+p.rank.slice(1)}</div>
+        </div>
+
+        ${ext.description ? `
+        <div class="m-15-b p-15-all border-rd-8" style="background:rgba(255,255,255,0.03);border:1px solid var(--pk-border);">
+            <p class="fs-5 opacity-7 lh-1-5">${ext.description}</p>
+        </div>
+        ` : ''}
+
+        ${abilities.length > 0 ? `
+        <div class="m-15-b">
+            <h4 class="fs-6 fw-700 m-10-b text-uppercase opacity-6">Habilidades</h4>
+            <div class="d-flex f-dir-column f-gap-6">
+                ${abilities.map(a => {
+                    const eff = (typeof ABILITY_EFFECTS !== 'undefined' && ABILITY_EFFECTS[a]) ? ABILITY_EFFECTS[a] : null;
+                    return `<div class="p-8-all border-rd-6" style="background:rgba(255,222,0,0.06);border:1px solid rgba(255,222,0,0.2);">
+                        <span class="fw-700 fs-5" style="color:var(--pk-yellow);">${a}</span>
+                        ${eff ? `<div class="fs-3 m-3-t opacity-7">${eff.desc}</div>` : ''}
+                    </div>`;
+                }).join('')}
+            </div>
+        </div>
+        ` : ''}
+
+        <div class="m-20-b">
+            <h4 class="fs-6 fw-700 m-10-b text-uppercase opacity-6">Stats Base</h4>
+            ${renderStatBar('HP', p.hp, maxStat, 'stat-hp')}
+            ${renderStatBar('Ataque', p.atk, maxStat, 'stat-atk')}
+            ${renderStatBar('Defesa', p.def, maxStat, 'stat-def')}
+            ${renderStatBar('Sp.Atk', p.spatk, maxStat, 'stat-spatk')}
+            ${renderStatBar('Sp.Def', p.spdef, maxStat, 'stat-spdef')}
+            ${renderStatBar('Veloc.', p.spd, maxStat, 'stat-spd')}
+            <div class="fs-4 opacity-5 m-5-t text-right">Total: ${p.hp+p.atk+p.def+p.spatk+p.spdef+p.spd}</div>
+        </div>
+
+        ${ext.height ? `
+        <div class="m-15-b d-flex f-gap-20 f-justify-center">
+            <div class="text-center"><div class="fs-3 opacity-5 text-uppercase">Altura</div><div class="fs-6 fw-700">${ext.height}m</div></div>
+            <div class="text-center"><div class="fs-3 opacity-5 text-uppercase">Peso</div><div class="fs-6 fw-700">${ext.weight}kg</div></div>
+            <div class="text-center"><div class="fs-3 opacity-5 text-uppercase">Captura</div><div class="fs-6 fw-700">${ext.captureRate}</div></div>
+        </div>
+        ` : ''}
+
+        <div class="m-15-b">
+            <h4 class="fs-6 fw-700 m-10-b text-uppercase opacity-6">Movimentos</h4>
+            <table style="width:100%;border-collapse:collapse;">
+                <tr style="border-bottom:1px solid var(--pk-border);">
+                    <th class="fs-3 fw-700 opacity-5 p-8-tb" style="text-align:left;">Nome</th>
+                    <th class="fs-3 fw-700 opacity-5 p-8-tb">Tipo</th>
+                    <th class="fs-3 fw-700 opacity-5 p-8-tb">Poder</th>
+                    <th class="fs-3 fw-700 opacity-5 p-8-tb">Cat.</th>
+                </tr>
+                ${p.moves.map(m => `
+                    <tr style="border-bottom:1px solid rgba(255,255,255,0.04);">
+                        <td class="fw-600 fs-5 p-8-tb">${m.name}</td>
+                        <td class="p-8-tb text-center"><span class="type-badge type-${m.type}" style="font-size:9px;padding:2px 8px;">${TYPE_NAMES[m.type]}</span></td>
+                        <td class="fs-5 p-8-tb text-center">${m.power || '-'}</td>
+                        <td class="fs-5 p-8-tb text-center">${m.cat === 'physical' ? '💥 Físico' : m.cat === 'special' ? '✨ Especial' : '🎯 Status'}</td>
+                    </tr>
+                `).join('')}
+            </table>
+        </div>
+
+        ${ext.locations && ext.locations.length > 0 ? `
+        <div>
+            <h4 class="fs-6 fw-700 m-10-b text-uppercase opacity-6">Onde Encontrar</h4>
+            ${ext.locations.map(loc => `
+                <div class="d-flex f-items-center f-gap-10 m-5-b p-10-all border-rd-6" style="background:rgba(255,255,255,0.02);">
+                    <span class="fs-5">${loc.method === 'grass' ? '🌿' : loc.method === 'fishing' ? '🎣' : loc.method === 'event' ? '🎁' : loc.method === 'legendary' ? '👑' : loc.method === 'evolution' ? '✨' : loc.method === 'starter' ? '⭐' : '📍'}</span>
+                    <div>
+                        <div class="fs-5 fw-600">${loc.area}</div>
+                        <div class="fs-3 opacity-5">${loc.rarity ? 'Raridade: ' + loc.rarity : ''} ${loc.level ? '| Nível: ' + loc.level : ''}</div>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+        ` : ''}
+    `;
+
+    document.getElementById('detail-overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeDetail() {
+    document.getElementById('detail-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDetail(); });
+
+document.getElementById('search').addEventListener('input', (e) => {
+    currentSearch = e.target.value;
+    renderPokedex();
+});
+
+renderPokedex();
+</script>
+</body>
+</html>
