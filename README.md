@@ -248,7 +248,6 @@ Quer adicionar **Gen 2, 3, 4...**?
 - **Sistema de RPG**: Projeto fan-made educacional
 - **Pokémon**: © Nintendo / Game Freak / Creatures Inc.
 - **Sprites**: PokeAPI (https://pokeapi.co/)
-- **Framework CSS**: Squeleton (https://squeleton.dev/)
 
 ---
 
